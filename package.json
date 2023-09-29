@@ -1,0 +1,37 @@
+{
+    "name": "maine_proyecto_backend",
+    "version": "0.0.0",
+    "description": "Proyecto del curso de Backend de Coderhouse",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "postinstall": "husky install",
+        "dev": "nodemon --config nodemon.json",
+        "format": "prettier --write .",
+        "lint": "eslint --fix . --ext .js",
+        "start": "node src/index.js"
+    },
+    "keywords": [],
+    "author": "Gabriel Maine <gabrielmaine14@gmail.com> (https://github.com/GabrielMaine)",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/GabrielMaine/Proyecto_Backend.git"
+    },
+    "bugs": {
+        "url": "https://github.com/GabrielMaine/Proyecto_Backend/issues"
+    },
+    "devDependencies": {
+        "@commitlint/cli": "17.7.1",
+        "@commitlint/config-conventional": "17.7.0",
+        "eslint": "8.50.0",
+        "husky": "8.0.3",
+        "lint-staged": "14.0.1",
+        "nodemon": "3.0.1",
+        "prettier": "3.0.3"
+    },
+    "engines": {
+        "node": ">=18",
+        "npm": ">=8"
+    }
+}
