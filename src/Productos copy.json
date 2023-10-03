@@ -1,0 +1,92 @@
+[
+    {
+        "title": "Coca Cola",
+        "description": "Coca cola de 1l",
+        "price": 1000,
+        "thumbnail": "url",
+        "code": 5344,
+        "stock": 1000,
+        "id": 1
+    },
+    {
+        "title": "Quilmes",
+        "description": "Quilmes de 1l",
+        "price": 1300,
+        "thumbnail": "url",
+        "code": 5345,
+        "stock": 1000,
+        "id": 2
+    },
+    {
+        "title": "Heineken",
+        "description": "Heineken de 1l",
+        "price": 1600,
+        "thumbnail": "url",
+        "code": 5346,
+        "stock": 1000,
+        "id": 3
+    },
+    {
+        "title": "Pepsi",
+        "description": "Pepsi de 1l",
+        "price": 1000,
+        "thumbnail": "url",
+        "code": 5347,
+        "stock": 1000,
+        "id": 4
+    },
+    {
+        "title": "Manaos",
+        "description": "Manaos de 1l",
+        "price": 800,
+        "thumbnail": "url",
+        "code": 5348,
+        "stock": 1000,
+        "id": 5
+    },
+    {
+        "title": "Baggio",
+        "description": "Baggio de 1l",
+        "price": 1000,
+        "thumbnail": "url",
+        "code": 5349,
+        "stock": 1000,
+        "id": 6
+    },
+    {
+        "title": "Doritos",
+        "description": "Paquete de Doritos",
+        "price": 1300,
+        "thumbnail": "url",
+        "code": 5350,
+        "stock": 1000,
+        "id": 7
+    },
+    {
+        "title": "Lays Clasicas",
+        "description": "Paquete de Lays Clasicas",
+        "price": 1200,
+        "thumbnail": "url",
+        "code": 5351,
+        "stock": 1000,
+        "id": 8
+    },
+    {
+        "title": "Mani",
+        "description": "Bolsa de mani con cascara",
+        "price": 1000,
+        "thumbnail": "url",
+        "code": 5352,
+        "stock": 1000,
+        "id": 9
+    },
+    {
+        "title": "Mani saborizado",
+        "description": "Bolsa de mani saborizado",
+        "price": 1000,
+        "thumbnail": "url",
+        "code": 5353,
+        "stock": 1000,
+        "id": 10
+    }
+]
