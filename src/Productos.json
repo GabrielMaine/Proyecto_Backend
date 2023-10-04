@@ -37,8 +37,8 @@
     },
     {
         "title": "Manaos",
-        "description": "Manaos de 1l",
-        "price": 800,
+        "description": "Pepsi de 4l",
+        "price": 4000,
         "thumbnail": "url",
         "code": 5348,
         "stock": 1000,
@@ -81,12 +81,13 @@
         "id": 9
     },
     {
-        "title": "Mani saborizado",
-        "description": "Bolsa de mani saborizado",
+        "title": "Coca Cola Zero",
+        "description": "Coca cola Zero de 1l",
         "price": 1000,
-        "thumbnail": "url",
-        "code": 5353,
+        "code": "ABa",
         "stock": 1000,
-        "id": 10
+        "category": "Bebidas",
+        "status": true,
+        "id": "bb09cbdc-0b82-4e66-83b6-9fb8f2342cf1"
     }
 ]
