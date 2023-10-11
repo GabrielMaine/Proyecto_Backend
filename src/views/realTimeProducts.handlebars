@@ -1,31 +1,31 @@
 <div>
     <h1>Lista de productos</h1>
-    <div id="realTimeProducts">
+    <div id='realTimeProducts'>
         {{#each products}}
             <div>
-                <span>Producto: {{this.title}}</span><br>
+                <span>Producto: {{this.title}}</span><br />
                 <span>ID: {{this.id}}</span>
             </div>
         {{/each}}
     </div>
 
     <h2>Agregar un nuevo producto</h2>
-    <form onsubmit="return addProduct(this)">
-        <input type="text" id="title" placeholder="Nombre" />
-        <input type="text" id="description" placeholder="Descripcion" />
-        <input type="number" id="price" placeholder="Precio" />
-        <input type="text" id="code" placeholder="Codigo" />
-        <input type="number" id="stock" placeholder="Stock" />
-        <input type="text" id="category" placeholder="Categoria" />
-        <input type="text" id="id" placeholder="ID" />
-        <input type="submit" value="Enviar!" />
+    <form onsubmit='return addProduct(this)'>
+        <input type='text' id='title' placeholder='Nombre' />
+        <input type='text' id='description' placeholder='Descripcion' />
+        <input type='number' id='price' placeholder='Precio' />
+        <input type='text' id='code' placeholder='Codigo' />
+        <input type='number' id='stock' placeholder='Stock' />
+        <input type='text' id='category' placeholder='Categoria' />
+        <input type='text' id='id' placeholder='ID' />
+        <input type='submit' value='Enviar!' />
     </form>
 
     <h2>Eliminar un producto segun su ID</h2>
-    <form onsubmit="return deleteProduct(this)">
-        <input type="text" id="id2" placeholder="ID" />
-        <input type="submit" value="Enviar!" />
+    <form onsubmit='return deleteProduct(this)'>
+        <input type='text' id='id2' placeholder='ID' />
+        <input type='submit' value='Enviar!' />
     </form>
 </div>
-<script src="/socket.io/socket.io.js"></script>
-<script src="/js/index.js"></script>
+<script src='/socket.io/socket.io.js'></script>
+<script src='/js/index.js'></script>
