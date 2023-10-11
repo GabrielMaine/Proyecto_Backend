@@ -7,6 +7,6 @@
         "strictNullChecks": true,
         "strictFunctionTypes": true
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "public/js"],
     "exclude": ["node_modules"]
 }
