@@ -11,8 +11,7 @@ const addProduct = () => {
         price: document.getElementById('price').value,
         code: document.getElementById('code').value,
         stock: document.getElementById('stock').value,
-        category: document.getElementById('category').value,
-        id: document.getElementById('id').value,
+        thumbnail: document.getElementById('thumbnail').value,
     }
     console.log(product)
     socket.emit('new-product', product)
@@ -32,7 +31,11 @@ socket.on('reRender-products', data => {
     let render = document.getElementById('realTimeProducts')
     let products = ''
     data.forEach(element => {
-        products = products + `<div>Producto: ${element.title} </br> ID:${element.id}</div>`
+        products =
+            products +
+            `<div><span>Nombre: ${element.title} <span></br>
+        <span>Descripcion: ${element.description}</span><br> 
+        <span>ID: ${element._id}</span><hr></div>`
     })
     render.innerHTML = products
 })

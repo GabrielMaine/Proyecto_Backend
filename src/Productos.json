@@ -88,5 +88,35 @@
         "code": 5353,
         "stock": 1000,
         "id": 10
+    },
+    {
+        "title": "Coca Cola Zero",
+        "description": "Coca cola Zero de 1l",
+        "price": 1000,
+        "code": "ABq",
+        "stock": 1000,
+        "category": "Bebidas",
+        "status": true,
+        "id": "cfc57d4b-b1da-44a0-b5e0-1d9e5a0e8210"
+    },
+    {
+        "title": "Coca Cola Zero",
+        "description": "Coca cola Zero de 1l",
+        "price": 1000,
+        "code": "AB1",
+        "stock": 1000,
+        "category": "Bebidas",
+        "status": true,
+        "id": "abff1494-2ee5-417f-bafe-1d6fc5291cd1"
+    },
+    {
+        "title": "Coca Cola Zero",
+        "description": "Coca cola Zero de 1l",
+        "price": 1000,
+        "code": "AB1a",
+        "stock": 1000,
+        "category": "Bebidas",
+        "status": true,
+        "id": "ccfacfe3-b1c8-43d8-adf9-58ac91ba19bb"
     }
 ]

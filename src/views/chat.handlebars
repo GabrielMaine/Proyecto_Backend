@@ -1,0 +1,16 @@
+<div>
+    <h1>Chat</h1>
+    <div id="chat">
+        <form onsubmit='return getMessage(this)'>
+            <label for="user">Ingrese su e-mail</label>
+            <input type='mail' id='e-mail' name="user" placeholder='Leonelmessi@gmail.com' />
+            <hr>
+            <label for="message">Dejanos tu mensaje</label>
+            <textarea id="message" name="message"></textarea>
+            <hr>
+            <input type='submit' value='Enviar!' />
+        </form>
+    </div>
+</div>
+<script src='/socket.io/socket.io.js'></script>
+<script src='/js/chat.js'></script>

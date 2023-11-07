@@ -3,21 +3,22 @@
     <div id='realTimeProducts'>
         {{#each products}}
             <div>
-                <span>Producto: {{this.title}}</span><br />
-                <span>ID: {{this.id}}</span>
+                <span>Nombre: {{this.title}}</span><br>
+                <span>Descripcion: {{this.description}}</span><br>
+                <span>ID: {{this._id}}</span>
+                <hr>
             </div>
         {{/each}}
     </div>
 
     <h2>Agregar un nuevo producto</h2>
     <form onsubmit='return addProduct(this)'>
-        <input type='text' id='title' placeholder='Nombre' />
-        <input type='text' id='description' placeholder='Descripcion' />
-        <input type='number' id='price' placeholder='Precio' />
-        <input type='text' id='code' placeholder='Codigo' />
-        <input type='number' id='stock' placeholder='Stock' />
-        <input type='text' id='category' placeholder='Categoria' />
-        <input type='text' id='id' placeholder='ID' />
+        <input required type='text' id='title' placeholder='Nombre' />
+        <input required type='text' id='description' placeholder='Descripcion' />
+        <input required type='number' id='price' placeholder='Precio' />
+        <input required type='text' id='code' placeholder='Codigo' />
+        <input type='text' id='thumbnail' placeholder='Imagen' />
+        <input required type='number' id='stock' placeholder='Stock' />
         <input type='submit' value='Enviar!' />
     </form>
 
@@ -28,4 +29,4 @@
     </form>
 </div>
 <script src='/socket.io/socket.io.js'></script>
-<script src='/js/index.js'></script>
+<script src='/js/realTimeProducts.js'></script>

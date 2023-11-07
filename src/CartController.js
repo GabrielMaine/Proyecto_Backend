@@ -1,64 +1,91 @@
 'use strict'
 
-import Cart from './Cart.js'
 import { product, carts } from './helpers.js'
-import { v4 as uuidv4 } from 'uuid'
+import { cartModel } from './dao/models/Carts.model.js'
+import { productModel } from './dao/models/Products.model.js'
 
 export const cartCreator = async (req, res) => {
-    //Generamos un ID y creamos un nuevo carrito vacio con ese ID
-    let newID = uuidv4()
-    let newCart = new Cart(newID)
-
-    //Almacenamos la cantidad de carritos actualmente en el sistema e intentamos cargar el nuevo carrito
-    let currentLength = await carts.getLength()
-    await carts.addCart(newCart)
-
-    //Comparamos la cantidad de carritos actual con la almacenada anteriormente. Si es igual el nuevo carrito no se cargo
-    res.status((await carts.getLength()) !== currentLength ? 200 : 409).json({
-        info: {
-            status: (await carts.getLength()) !== currentLength ? 200 : 409,
-            message: (await carts.getLength()) !== currentLength ? 'Carrito creado' : 'No se pudo crear el carrito',
-        },
-        results: newCart,
-    })
+    try {
+        let newCart = await cartModel.create({ products: [] })
+        res.status(200).json({
+            info: {
+                status: 200,
+                message: 'Carrito creado',
+            },
+            results: newCart,
+        })
+    } catch (error) {
+        res.status(409).json({
+            info: {
+                status: 409,
+                message: 'No se pudo crear el carrito',
+            },
+            results: [],
+        })
+    }
 }
 
 export const cartGetterById = async (req, res) => {
     let cid = req.params.cid
-    let filteredCart = await carts.getCartById(cid)
-
-    //Verificamos que se haya encontrado un carrito con ese ID, en caso contrario mostramos un 404
-    res.status(filteredCart.products ? 200 : 404).json({
-        info: {
-            status: filteredCart.products ? 200 : 404,
-            message: filteredCart.products ? 'Carrito encontrado' : 'No se pudo encontro el carrito con ese ID',
-        },
-        results: filteredCart.products,
-    })
+    try {
+        let filteredCart = await cartModel.findById(cid)
+        res.status(200).json({
+            info: {
+                status: 200,
+                message: 'Carrito encontrado',
+            },
+            results: filteredCart.products,
+        })
+    } catch (error) {
+        res.status(404).json({
+            info: {
+                status: 404,
+                message: 'No se pudo encontro el carrito con ese ID',
+            },
+            results: [],
+        })
+    }
 }
 
 export const addProductToCart = async (req, res) => {
-    let cid = req.params.cid
-    let pid = req.params.pid
-    let filteredProduct = await product.getProductById(pid)
+    let cId = req.params.cid
+    let pId = req.params.pid
+    try {
+        let product = await productModel.findById(pId)
+        let cart = await cartModel.findById(cId).lean()
+        let cartProducts = cart.products
+        let updatedCart = []
+        const cartIndex = cartProducts.findIndex(el => el.id === pId)
 
-    //Verificamos que existan producto y carrito con sus IDs antes de cargar al carrito, en caso contrario devolvemos 404
-    let productStatus = Object.keys(filteredProduct).length !== 0
-    let cartStatus = Object.keys(await carts.getCartById(cid)).length !== 0
-    if (productStatus && cartStatus) {
-        await carts.addItemToCart(cid, pid)
+        if (cartIndex === -1) {
+            let newProduct = {
+                id: product.id,
+                title: product.title,
+                price: product.price,
+                quantity: 1,
+            }
+            cartProducts.push(newProduct)
+            updatedCart = await cartModel.findByIdAndUpdate({ _id: cId }, { products: cartProducts }, { new: true })
+        } else {
+            cartProducts[cartIndex].quantity++
+            updatedCart = await cartModel.findByIdAndUpdate({ _id: cId }, { products: cartProducts }, { new: true })
+        }
+
+        res.status(200).json({
+            info: {
+                status: 200,
+                message: 'Carrito actualizado',
+            },
+            results: await cartModel.findById(cId),
+        })
+    } catch (error) {
+        let cartError = error.message.includes('"carts"')
+        res.status(404).json({
+            info: {
+                status: 404,
+                message: cartError ? 'No se puede encontrar en carrito' : 'No se puede encontrar el producto',
+            },
+            results: [],
+        })
     }
-
-    res.status(productStatus && cartStatus ? 200 : 404).json({
-        info: {
-            status: productStatus && cartStatus ? 200 : 404,
-            message:
-                productStatus && cartStatus
-                    ? 'Carrito actualizado'
-                    : productStatus
-                    ? 'Cart ID inexistente'
-                    : 'Product ID inexistente',
-        },
-        results: await carts.getCartById(cid),
-    })
 }
