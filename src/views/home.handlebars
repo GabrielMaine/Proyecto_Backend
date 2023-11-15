@@ -1,13 +1,13 @@
-<div id="pageRender">
+<div id='pageRender'>
     <h1>Lista de productos</h1>
     <h2>Página <span id='currentPage'>{{results.page}}</span> de {{results.totalPages}}</h2>
     {{#each results.payload}}
         <div>
-            <span>Producto:{{this.title}}</span><br>
-            <span>ID:{{this._id}}</span><br>
-            <span>Precio:{{this.price}}</span><br>
-            <span>Descripcion:{{this.description}}</span><br>
-            <button>Agregar al carrito</button><hr>
+            <span>Producto:{{this.title}}</span><br />
+            <span>ID:{{this._id}}</span><br />
+            <span>Precio:{{this.price}}</span><br />
+            <span>Descripcion:{{this.description}}</span><br />
+            <button>Agregar al carrito</button><hr />
         </div>
     {{/each}}
 
