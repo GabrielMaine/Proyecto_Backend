@@ -1,6 +1,7 @@
 'use strict'
 
 import mongoose from 'mongoose'
+import mongoosePaginate from 'mongoose-paginate-v2'
 
 const productsCollection = 'products' //Nombre de la coleccion
 
@@ -16,6 +17,7 @@ const productsSchema = new mongoose.Schema({
     price: {
         type: Number,
         required: true,
+        index: true,
     },
     thumbnail: {
         type: String,
@@ -30,6 +32,17 @@ const productsSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    category: {
+        type: String,
+        required: true,
+    },
+    status: {
+        type: String,
+        required: true,
+        deafault: 'Disponible',
+    },
 })
+
+productsSchema.plugin(mongoosePaginate)
 
 export const productModel = mongoose.model(productsCollection, productsSchema)

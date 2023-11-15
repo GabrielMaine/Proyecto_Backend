@@ -12,7 +12,8 @@ import { productModel } from './dao/models/Products.model.js'
 
 //Configuramos los servidores
 const app = express()
-const httpServer = app.listen(8080, () => console.log('Servidor en el puerto 8080'))
+const port = 8080
+const httpServer = app.listen(port, () => console.log(`Servidor en el puerto ${port}`))
 const socketServer = new Server(httpServer)
 
 //Inicializamos el motor
@@ -44,6 +45,7 @@ socketServer.on('connection', socket => {
             products = await productModel.find().lean()
             socket.emit('reRender-products', products)
         } catch (error) {
+            console.log(error.message)
             console.log('No se pudo cargar el producto')
             socket.emit('reRender-products', products)
         }
@@ -60,8 +62,30 @@ socketServer.on('connection', socket => {
             socket.emit('reRender-products', products)
         }
     })
-    socket.once('new-message', async data => {
+    socket.on('new-message', async data => {
         const addMessage = await messageModel.create(data)
         socket.emit('reRender-chat', addMessage)
+    })
+    socket.on('change-page', async data => {
+        let products = await productModel.paginate({}, { limit: 5, page: data, lean: true })
+
+        const results = {
+            status: products.docs.length > 0 ? 'success' : 'error',
+            payload: products.docs,
+            totalPages: products.totalPages,
+            prevPage: products.prevPage,
+            nextPage: products.nextPage,
+            page: products.page,
+            hasPrevPage: products.hasPrevPage,
+            hasNextPage: products.hasNextPage,
+            prevLink: products.hasPrevPage
+                ? `http://localhost:8080/api/products?limit=${products.limit}&page=${products.prevPage}`
+                : null,
+            nextLink: products.hasNextPage
+                ? `http://localhost:8080/api/products?limit=${products.limit}&page=${products.nextPage}`
+                : null,
+        }
+
+        socket.emit('reRender-page', results)
     })
 })

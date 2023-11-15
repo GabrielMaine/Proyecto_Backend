@@ -12,6 +12,8 @@ const addProduct = () => {
         code: document.getElementById('code').value,
         stock: document.getElementById('stock').value,
         thumbnail: document.getElementById('thumbnail').value,
+        category: document.getElementById('category').value,
+        status: 'Disponible',
     }
     console.log(product)
     socket.emit('new-product', product)

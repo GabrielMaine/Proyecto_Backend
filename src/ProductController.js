@@ -3,32 +3,69 @@
 import { productModel } from './dao/models/Products.model.js'
 
 export const productGetter = async (req, res) => {
-    let limit = req.query.limit
-    let products = await productModel.find({}).lean()
-    let filteredProducts = []
+    let limit = req.query.limit || 10
+    let page = req.query.page || 1
+    let sort = req.query.sort || ''
+    let status = req.query.status || ''
+    let category = req.query.category || ''
 
-    if (!limit || limit < 0 || isNaN(limit)) {
-        //Si no existe el query, si el limite es negativo o si no es un numero devolvemos todos los productos
-        res.status(products.length > 0 ? 200 : 204).json({
-            info: {
-                status: products.length > 0 ? 200 : 204,
-                message: 'Query invalido',
-            },
-            results: products,
-        })
-    } else {
-        //Si hay un query valido devolvemos tantos productos como sea posible hasta alcanzar el limite o que no haya mas productos
-        for (let i = 0; i < limit; i++) {
-            if (products[i]) {
-                filteredProducts.push(products[i])
-            }
+    console.log(req.query)
+
+    try {
+        const options = {
+            page: page,
+            limit: limit,
         }
-        res.status(filteredProducts.length > 0 ? 200 : 204).json({
+        if (sort === '1' || sort === '-1') {
+            sort = parseInt(sort)
+        }
+        if (sort === 1 || sort === -1 || sort === 'asc' || sort === 'desc') {
+            options.sort = { price: sort }
+        }
+        console.log(options)
+        const queries = {}
+        if (status !== '') {
+            queries.status = status
+        }
+        if (category !== '') {
+            queries.category = category
+        }
+        console.log(queries)
+
+        let products = await productModel.paginate(queries, options)
+
+        const results = {
+            status: products.docs.length > 0 ? 'success' : 'error',
+            payload: products.docs,
+            totalPages: products.totalPages,
+            prevPage: products.prevPage,
+            nextPage: products.nextPage,
+            page: products.page,
+            hasPrevPage: products.hasPrevPage,
+            hasNextPage: products.hasNextPage,
+            prevLink: products.hasPrevPage
+                ? `http://localhost:8080/api/products?limit=${limit}&page=${products.prevPage}&sort=${sort}&status=${status}`
+                : null,
+            nextLink: products.hasNextPage
+                ? `http://localhost:8080/api/products?limit=${limit}&page=${products.nextPage}&sort=${sort}&status=${status}`
+                : null,
+        }
+
+        res.status(200).json({
             info: {
-                status: filteredProducts.length > 0 ? 200 : 204,
-                message: filteredProducts.length > 0 ? 'Carrito encontrado' : 'Carrito vacio',
+                status: products.docs.length > 0 ? 200 : 204,
+                message: products.docs.length > 0 ? 'Productos encontrados' : 'No se encontraron productos',
             },
-            results: filteredProducts,
+            results: results,
+        })
+    } catch (error) {
+        console.log(error.message)
+        res.status(400).json({
+            info: {
+                status: 400,
+                error: error.message,
+            },
+            results: error,
         })
     }
 }

@@ -1,11 +1,24 @@
-<div>
+<div id="pageRender">
     <h1>Lista de productos</h1>
-    {{#each products}}
+    <h2>Página <span id='currentPage'>{{results.page}}</span> de {{results.totalPages}}</h2>
+    {{#each results.payload}}
         <div>
-            <p>Producto:{{this.title}}</p>
-            <p>ID:{{this._id}}</p>
+            <span>Producto:{{this.title}}</span><br>
+            <span>ID:{{this._id}}</span><br>
+            <span>Precio:{{this.price}}</span><br>
+            <span>Descripcion:{{this.description}}</span><br>
+            <button>Agregar al carrito</button><hr>
         </div>
     {{/each}}
+
+    {{#if results.hasPrevPage}}
+        <button onclick='return prevPage(this)'>Pagina anterior</button>
+    {{/if}}
+
+    {{#if results.hasNextPage}}
+        <button onclick='return nextPage(this)'>Pagina siguiente</button>
+    {{/if}}
+
 </div>
 <script src='/socket.io/socket.io.js'></script>
-<script src='/js/index.js'></script>
+<script src='/js/home.js'></script>
