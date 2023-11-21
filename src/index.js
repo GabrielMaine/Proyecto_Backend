@@ -1,11 +1,15 @@
 'use strict'
 
 import express from 'express'
+import session from 'express-session'
+import cookieParser from 'cookie-parser'
+import MongoStore from 'connect-mongo'
 import handlebars from 'express-handlebars'
 import { Server } from 'socket.io'
 import { router as productRouter } from './routes/Product.routes.js'
 import { router as cartRouter } from './routes/Cart.routes.js'
 import { router as viewsRouter } from './routes/Views.routes.js'
+import { router as sessionRouter } from './routes/Session.routes.js'
 import { connectDB } from './config/dbConnection.js'
 import { messageModel } from './dao/models/Messages.model.js'
 import { productModel } from './dao/models/Products.model.js'
@@ -27,10 +31,23 @@ app.use(express.static(process.cwd() + '/public'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+app.use(
+    session({
+        store: new MongoStore({
+            mongoUrl:
+                'mongodb+srv://gabrielmaine14:M63691g@clustermaine.wojwmq5.mongodb.net/ecommerce?retryWrites=true&w=majority',
+            mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
+        }),
+        secret: 'CoderSecret',
+        resave: false,
+        saveUninitialized: false,
+    })
+)
+
 app.use('/api/products', productRouter)
 app.use('/api/carts', cartRouter)
 app.use('/', viewsRouter)
-// app.use('/', usersRouter)
+app.use('/', sessionRouter)
 
 socketServer.on('connection', socket => {
     console.log('Nuevo cliente conectado')

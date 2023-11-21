@@ -25,8 +25,7 @@ const nextPage = () => {
 socket.on('reRender-page', data => {
     console.log('Re render')
     let render = document.getElementById('pageRender')
-    let page = `<h1>Lista de productos</h1>
-                    <h2>Página <span id='currentPage'>${data.page}</span> de ${data.totalPages}</h2>`
+    let page = `<h2>Página <span id='currentPage'>${data.page}</span> de ${data.totalPages}</h2>`
     data.payload.forEach(element => {
         page =
             page +

@@ -8,7 +8,7 @@ const router = Router()
 
 //Rutas del catalogo
 
-router.get('/', async (req, res) => {
+router.get('/products', async (req, res) => {
     try {
         let products = await productModel.paginate({}, { limit: 5, page: 1, lean: true })
         const results = {
@@ -27,7 +27,9 @@ router.get('/', async (req, res) => {
                 ? `http://localhost:8080/api/products?limit=${products.limit}&page=${products.nextPage}`
                 : null,
         }
-        res.render('home', { results })
+        let user = req.session.user
+        console.log(user)
+        res.render('home', { results, user })
     } catch (error) {
         console.log(error.message)
         res.render('404', { error })
@@ -58,6 +60,23 @@ router.get('/carts/:cid', async (req, res) => {
     } catch (error) {
         console.log(error.message)
         res.render('404', { error })
+    }
+})
+
+router.get('/register', (req, res) => {
+    res.render('register')
+})
+
+router.get('/login', (req, res) => {
+    res.render('login')
+})
+
+router.get('/', (req, res) => {
+    let user = req.session.user
+    if (user) {
+        res.render('profile', { user })
+    } else {
+        res.redirect('/login')
     }
 })
 
