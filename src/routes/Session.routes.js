@@ -1,43 +1,47 @@
 import { Router } from 'express'
-import { userModel } from '../dao/models/Users.model.js'
+import passport from 'passport'
 
 const router = Router()
 
-router.post('/register', async (req, res) => {
-    const { first_name, last_name, email, age, password } = req.body
-    console.log('Registrando usuario')
-    const existe = await userModel.findOne({ email })
-
-    if (existe) return res.status(400).send({ status: 'error', error: 'El usuario ya existe' })
-    const user = {
-        first_name,
-        last_name,
-        email,
-        age,
-        password,
+router.post(
+    '/register',
+    passport.authenticate('register', {
+        failureRedirect: '/failregister',
+    }),
+    async (req, res) => {
+        res.send({ status: 'success', message: 'User registered' })
     }
-    let result = await userModel.create(user)
+)
 
-    res.send({ status: 'success', message: 'usuario registrado' })
+router.get('/failregister', async (req, res) => {
+    res.send({ error: 'failed' })
 })
 
-router.post('/login', async (req, res) => {
-    const { email, password } = req.body
-    console.log('Si pase por aqui /////')
-    const user = await userModel.findOne({ email, password })
+router.post(
+    '/login',
+    passport.authenticate('login', {
+        failureRedirect: '/faillogin',
+    }),
+    async (req, res) => {
+        const { email, password } = req.body
+        if (!req.user) return res.status(400).send({ status: 'error', error: 'Incomplete Values' })
 
-    if (!user) return res.status(400).send({ status: 'error', error: 'Error Credentials' })
+        let isAdmin = req.user.email === 'adminCoder@coder.com' ? true : false
 
-    let isAdmin = user.email === 'adminCoder@coder.com' && user.password === 'adminCod3r123' ? true : false
+        req.session.user = {
+            name: req.user.first_name + ' ' + req.user.last_name,
+            age: req.user.age,
+            email: req.user.email,
+            role: isAdmin ? 'Admin' : 'User',
+            isAdmin: isAdmin,
+        }
 
-    req.session.user = {
-        name: `${user.first_name} ${user.last_name}`,
-        email: user.email,
-        age: user.age,
-        role: isAdmin ? 'Admin' : 'User',
-        isAdmin: isAdmin,
+        res.send({ status: 'success', payload: req.user })
     }
-    res.send({ status: 'success', payload: req.session.user, message: 'Primer Logueo' })
+)
+
+router.get('/faillogin', async (req, res) => {
+    res.send({ error: 'failed' })
 })
 
 router.get('/logout', (req, res) => {
@@ -48,6 +52,13 @@ router.get('/logout', (req, res) => {
             res.status(400).send({ status: 'Logout error', message: err })
         }
     })
+})
+
+router.get('/github', passport.authenticate('github', { scope: ['user: email'] }), async (req, res) => {})
+
+router.get('/githubcallback', passport.authenticate('github', { failureRedirect: '/login' }), async (req, res) => {
+    req.session.user = req.user
+    res.redirect('/')
 })
 
 export { router }

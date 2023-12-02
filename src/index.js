@@ -2,7 +2,6 @@
 
 import express from 'express'
 import session from 'express-session'
-import cookieParser from 'cookie-parser'
 import MongoStore from 'connect-mongo'
 import handlebars from 'express-handlebars'
 import { Server } from 'socket.io'
@@ -13,6 +12,8 @@ import { router as sessionRouter } from './routes/Session.routes.js'
 import { connectDB } from './config/dbConnection.js'
 import { messageModel } from './dao/models/Messages.model.js'
 import { productModel } from './dao/models/Products.model.js'
+import passport from 'passport'
+import initializedPassport from './config/passport.config.js'
 
 //Configuramos los servidores
 const app = express()
@@ -43,11 +44,13 @@ app.use(
         saveUninitialized: false,
     })
 )
-
+initializedPassport()
+app.use(passport.initialize())
+app.use(passport.session())
 app.use('/api/products', productRouter)
 app.use('/api/carts', cartRouter)
 app.use('/', viewsRouter)
-app.use('/', sessionRouter)
+app.use('/api/sessions', sessionRouter)
 
 socketServer.on('connection', socket => {
     console.log('Nuevo cliente conectado')
