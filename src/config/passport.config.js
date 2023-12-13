@@ -2,6 +2,7 @@ import passport from 'passport'
 import local from 'passport-local'
 import { createHash, isValidPassword } from '../utils.js'
 import { userModel } from '../dao/models/Users.model.js'
+import { cartModel } from '../dao/models/Carts.model.js'
 import GithubStrategy from 'passport-github2'
 
 const LocalStrategy = local.Strategy
@@ -18,17 +19,20 @@ const initializedPassport = () => {
             async (accessToken, refreshToken, profile, done) => {
                 try {
                     let user = await userModel.findOne({ email: profile._json.email })
-                    let newUser
+                    let result = user
                     if (!user) {
-                        newUser = {
+                        let newCart = await cartModel.create({ products: [] })
+                        console.log(newCart)
+                        let newUser = {
                             first_name: profile._json.name,
                             last_name: '',
                             email: profile._json.email,
                             age: '',
                             password: '',
+                            cart: newCart._id,
                         }
+                        result = await userModel.create(newUser)
                     }
-                    let result = await userModel.create(newUser)
                     return done(null, result)
                 } catch (error) {
                     return done(error)
@@ -49,12 +53,14 @@ const initializedPassport = () => {
                         console.log(user)
                         return done(null, false)
                     }
+                    let newCart = await cartModel.create({ products: [] })
                     const newUser = {
                         first_name,
                         last_name,
                         email,
                         age,
                         password: createHash(password),
+                        cart: newCart._id,
                     }
                     let result = await userModel.create(newUser)
                     return done(null, result)

@@ -61,4 +61,14 @@ router.get('/githubcallback', passport.authenticate('github', { failureRedirect:
     res.redirect('/')
 })
 
+router.get('/current', (req, res) => {
+    req.session.user = req.user
+    console.log('Estoy en current')
+    if (req.session.user) {
+        res.status(200).send({ status: 'Sucess', message: req.session.user })
+    } else {
+        res.status(400).send({ status: 'Not found', message: 'No current session' })
+    }
+})
+
 export { router }
