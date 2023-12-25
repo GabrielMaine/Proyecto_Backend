@@ -12,7 +12,7 @@ import { router as sessionRouter } from './routes/Session.routes.js'
 import { router as userRouter } from './routes/Users.routes.js'
 import { connectDB } from './config/dbConnection.js'
 import { messageModel } from './dao/models/Messages.model.js'
-import { productModel } from './dao/models/Products.model.js'
+import productService from './services/Products.service.js'
 import passport from 'passport'
 import initializedPassport from './config/passport.config.js'
 
@@ -60,11 +60,12 @@ socketServer.on('connection', socket => {
         console.log(data)
     })
     socket.on('new-product', async data => {
-        let products = await productModel.find().lean()
+        let products = await productService.getAllProducts()
         try {
-            await productModel.create(data)
+            await productService.createProduct(data)
             console.log('Nuevo producto')
-            products = await productModel.find().lean()
+            products = await productService.getAllProducts()
+            console.log(products)
             socket.emit('reRender-products', products)
         } catch (error) {
             console.log(error.message)
@@ -73,11 +74,11 @@ socketServer.on('connection', socket => {
         }
     })
     socket.on('delete-product', async data => {
-        let products = await productModel.find().lean()
+        let products = await productService.getAllProducts()
         try {
-            await productModel.findByIdAndDelete(data)
+            await productService.deleteProduct(data)
             console.log('Producto borrado')
-            products = await productModel.find().lean()
+            products = await productService.getAllProducts()
             socket.emit('reRender-products', products)
         } catch (error) {
             console.log('No se pudo borrar el producto')
@@ -89,7 +90,7 @@ socketServer.on('connection', socket => {
         socket.emit('reRender-chat', addMessage)
     })
     socket.on('change-page', async data => {
-        let products = await productModel.paginate({}, { limit: 5, page: data, lean: true })
+        let products = await productService.paginateProducts({}, { limit: 5, page: data, lean: true })
 
         const results = {
             status: products.docs.length > 0 ? 'success' : 'error',
