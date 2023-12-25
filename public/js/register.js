@@ -1,5 +1,7 @@
 /* global document, window */
 
+document.getElementById('gridCheck').required = true
+
 const form = document.getElementById('registerForm')
 
 form.addEventListener('submit', e => {

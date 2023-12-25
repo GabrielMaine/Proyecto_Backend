@@ -9,6 +9,7 @@ import { router as productRouter } from './routes/Product.routes.js'
 import { router as cartRouter } from './routes/Cart.routes.js'
 import { router as viewsRouter } from './routes/Views.routes.js'
 import { router as sessionRouter } from './routes/Session.routes.js'
+import { router as userRouter } from './routes/Users.routes.js'
 import { connectDB } from './config/dbConnection.js'
 import { messageModel } from './dao/models/Messages.model.js'
 import { productModel } from './dao/models/Products.model.js'
@@ -51,6 +52,7 @@ app.use('/api/products', productRouter)
 app.use('/api/carts', cartRouter)
 app.use('/', viewsRouter)
 app.use('/api/sessions', sessionRouter)
+app.use('/api/users', userRouter)
 
 socketServer.on('connection', socket => {
     console.log('Nuevo cliente conectado')

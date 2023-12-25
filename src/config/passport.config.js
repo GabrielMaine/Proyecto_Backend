@@ -1,8 +1,7 @@
 import passport from 'passport'
 import local from 'passport-local'
-import { createHash, isValidPassword } from '../utils.js'
-import { userModel } from '../dao/models/Users.model.js'
-import { cartModel } from '../dao/models/Carts.model.js'
+import { isValidPassword } from '../helpers/utils.js'
+import userService from '../services/User.service.js'
 import GithubStrategy from 'passport-github2'
 
 const LocalStrategy = local.Strategy
@@ -18,20 +17,17 @@ const initializedPassport = () => {
             },
             async (accessToken, refreshToken, profile, done) => {
                 try {
-                    let user = await userModel.findOne({ email: profile._json.email })
+                    let user = await userService.getUser(profile._json.email)
                     let result = user
                     if (!user) {
-                        let newCart = await cartModel.create({ products: [] })
-                        console.log(newCart)
                         let newUser = {
                             first_name: profile._json.name,
                             last_name: '',
                             email: profile._json.email,
                             age: '',
                             password: '',
-                            cart: newCart._id,
                         }
-                        result = await userModel.create(newUser)
+                        result = await userService.createUser(newUser)
                     }
                     return done(null, result)
                 } catch (error) {
@@ -48,21 +44,19 @@ const initializedPassport = () => {
             async (req, username, password, done) => {
                 const { first_name, last_name, email, age } = req.body
                 try {
-                    const user = await userModel.findOne({ email: username })
+                    const user = await userService.getUser(email)
                     if (user) {
                         console.log(user)
                         return done(null, false)
                     }
-                    let newCart = await cartModel.create({ products: [] })
                     const newUser = {
                         first_name,
                         last_name,
                         email,
                         age,
-                        password: createHash(password),
-                        cart: newCart._id,
+                        password,
                     }
-                    let result = await userModel.create(newUser)
+                    let result = await userService.createUser(newUser)
                     return done(null, result)
                 } catch (error) {
                     return done('User Not fount' + error)
@@ -75,7 +69,7 @@ const initializedPassport = () => {
         'login',
         new LocalStrategy({ passReqToCallback: true, usernameField: 'email' }, async (req, email, password, done) => {
             try {
-                const user = await userModel.findOne({ email: email })
+                const user = await userService.getUser(email)
                 console.log(' User login ' + user)
                 if (!user) {
                     console.log('No user')
@@ -95,11 +89,11 @@ const initializedPassport = () => {
     )
 
     passport.serializeUser((user, done) => {
-        done(null, user.id)
+        done(null, user)
     })
 
     passport.deserializeUser(async (id, done) => {
-        let user = await userModel.findById(id)
+        let user = await userService.getUserbyId(id)
         done(null, user)
     })
 }

@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import passport from 'passport'
+import sessionController from '../Controllers/Session.controller.js'
 
 const router = Router()
 
@@ -8,67 +9,31 @@ router.post(
     passport.authenticate('register', {
         failureRedirect: '/failregister',
     }),
-    async (req, res) => {
-        res.send({ status: 'success', message: 'User registered' })
-    }
+    sessionController.register
 )
 
-router.get('/failregister', async (req, res) => {
-    res.send({ error: 'failed' })
-})
+router.get('/failregister', sessionController.failRegister)
 
 router.post(
     '/login',
     passport.authenticate('login', {
         failureRedirect: '/faillogin',
     }),
-    async (req, res) => {
-        const { email, password } = req.body
-        if (!req.user) return res.status(400).send({ status: 'error', error: 'Incomplete Values' })
-
-        let isAdmin = req.user.email === 'adminCoder@coder.com' ? true : false
-
-        req.session.user = {
-            name: req.user.first_name + ' ' + req.user.last_name,
-            age: req.user.age,
-            email: req.user.email,
-            role: isAdmin ? 'Admin' : 'User',
-            isAdmin: isAdmin,
-        }
-
-        res.send({ status: 'success', payload: req.user })
-    }
+    sessionController.login
 )
 
-router.get('/faillogin', async (req, res) => {
-    res.send({ error: 'failed' })
-})
+router.get('/faillogin', sessionController.failLogin)
 
-router.get('/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (!err) {
-            res.redirect('/login')
-        } else {
-            res.status(400).send({ status: 'Logout error', message: err })
-        }
-    })
-})
+router.get('/logout', sessionController.logout)
 
-router.get('/github', passport.authenticate('github', { scope: ['user: email'] }), async (req, res) => {})
+router.get('/github', passport.authenticate('github', { scope: ['user: email'] }), sessionController.github)
 
-router.get('/githubcallback', passport.authenticate('github', { failureRedirect: '/login' }), async (req, res) => {
-    req.session.user = req.user
-    res.redirect('/')
-})
+router.get(
+    '/githubcallback',
+    passport.authenticate('github', { failureRedirect: '/login' }),
+    sessionController.githubCallback
+)
 
-router.get('/current', (req, res) => {
-    req.session.user = req.user
-    console.log('Estoy en current')
-    if (req.session.user) {
-        res.status(200).send({ status: 'Sucess', message: req.session.user })
-    } else {
-        res.status(400).send({ status: 'Not found', message: 'No current session' })
-    }
-})
+router.get('/current', sessionController.current)
 
 export { router }

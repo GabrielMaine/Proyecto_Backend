@@ -1,20 +1,17 @@
 'use strict'
-
-import { productGetter, productGetterById, productAdder, productUpdater, productDeleter } from '../ProductController.js'
+import productController from '../Controllers/Product.controller.js'
 import { Router } from 'express'
 
 const router = Router()
 
-//Rutas del catalogo
+router.get('/', productController.paginateProducts)
 
-router.get('', productGetter)
+router.get('/:pid', productController.getProduct)
 
-router.get('/:pid', productGetterById)
+router.post('', productController.createProduct)
 
-router.post('', productAdder)
+router.put('/:pid', productController.updateProduct)
 
-router.put('/:pid', productUpdater)
-
-router.delete('/:pid', productDeleter)
+router.delete('/:pid', productController.deleteProduct)
 
 export { router }

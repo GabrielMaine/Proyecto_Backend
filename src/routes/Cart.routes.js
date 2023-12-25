@@ -1,32 +1,21 @@
 'use strict'
-
-import {
-    addProductToCart,
-    cartCreator,
-    cartGetterById,
-    emptyCart,
-    deleteProductFromCart,
-    updateProductFromCart,
-    updatePaginatedCart,
-} from '../CartController.js'
+import cartController from '../Controllers/Cart.controller.js'
 import { Router } from 'express'
 
 const router = Router()
 
-//Rutas de los carritos
+router.post('/', cartController.createCart)
 
-router.post('/', cartCreator)
+router.get('/:cid', cartController.getCart)
 
-router.get('/:cid', cartGetterById)
+router.post('/:cid/product/:pid', cartController.addProduct)
 
-router.post('/:cid/product/:pid', addProductToCart)
+router.delete('/:cid', cartController.emptyCart)
 
-router.delete('/:cid', emptyCart)
+router.delete('/:cid/product/:pid', cartController.deleteProduct)
 
-router.delete('/:cid/product/:pid', deleteProductFromCart)
+router.put('/:cid/product/:pid', cartController.updateProduct)
 
-router.put('/:cid/product/:pid', updateProductFromCart)
-
-router.put('/:cid', updatePaginatedCart)
+router.put('/:cid', cartController.paginateCart)
 
 export { router }

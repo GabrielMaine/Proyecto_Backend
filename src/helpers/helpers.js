@@ -1,7 +1,7 @@
 'use strict'
 
-import ProductManager from './dao/ProductManager.js'
-import CartManager from './dao/CartManager.js'
+import ProductManager from '../dao/fs/ProductManager.js'
+import CartManager from '../dao/fs/CartManager.js'
 
 //Creamos una variable product vinculada al archivo Productos.json
 export let product = new ProductManager('./src/Productos.json')
