@@ -1,32 +1,32 @@
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-.loginPage{
+.loginPage {
     background-color: aliceblue;
     min-height: 100vh;
     padding-top: 5vh;
 }
 
-.loginFormContainer{
-    min-width:35%;
+.loginFormContainer {
+    min-width: 35%;
     max-width: 500px;
     margin: 0 auto;
     text-align: center;
-    background-color: rgba(255,255,255,0.2);
+    background-color: rgba(255, 255, 255, 0.2);
     border: 2px solid black;
     border-radius: 25px;
     padding: 1rem 2rem;
 }
 
-.loginTitle{
-    font-family:sans-serif;
+.loginTitle {
+    font-family: sans-serif;
     font-size: 2rem;
 }
 
-.formFieldset{
+.formFieldset {
     width: 100%;
     margin: 3vh auto 2vh;
     border: 2px solid black;
@@ -40,21 +40,21 @@
     border-left: none;
 }
 
-.formLegend{
-    font-family:sans-serif;
+.formLegend {
+    font-family: sans-serif;
     font-size: 1.5rem;
 }
 
-.inputGroup{
+.inputGroup {
     margin: 1rem auto 0;
-    width: 90%
+    width: 90%;
 }
 
-.dataInput{
+.dataInput {
     border: 1px solid black;
 }
 
-.submitInput{
+.submitInput {
     width: 90%;
     margin: 0.5rem auto;
     background-color: #ffffff;
@@ -66,22 +66,22 @@
     cursor: pointer;
 }
 
-.loginText{
+.loginText {
     font-family: sans-serif;
     color: black;
 }
 
-.githubContainer{
-    width:fit-content;
+.githubContainer {
+    width: fit-content;
     background-color: white;
-    margin: 2rem auto 0 ;
+    margin: 2rem auto 0;
 }
 
-.githubLink{
+.githubLink {
     text-decoration: none;
 }
 
-.githubButton{
+.githubButton {
     display: flex;
     align-items: center;
     background: white;
@@ -94,11 +94,11 @@
     padding: 1rem;
 }
 
-.githubButton:hover{
+.githubButton:hover {
     cursor: pointer;
 }
 
-.githubButtonText{
+.githubButtonText {
     margin-left: 0.5rem;
     line-height: 1.5rem;
     font-size: 1.5rem;

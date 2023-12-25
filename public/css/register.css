@@ -1,16 +1,16 @@
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-.registerPage{
+.registerPage {
     background-color: aliceblue;
     min-height: 100vh;
     padding-top: 5vh;
 }
 
-.registerContainer{
+.registerContainer {
     width: 50%;
     background-color: white;
     border: 1px solid black;
@@ -18,7 +18,7 @@
     padding: 1rem;
 }
 
-.submitInput{
+.submitInput {
     width: 90%;
     margin: 0.5rem auto;
     background-color: #ffffff;
@@ -30,7 +30,7 @@
     cursor: pointer;
 }
 
-.registerText{
+.registerText {
     font-family: sans-serif;
     color: black;
 }
