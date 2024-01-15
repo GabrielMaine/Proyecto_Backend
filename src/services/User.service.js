@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt'
-import { userModel } from '../dao/models/Users.model.js'
+import { userModel } from '../dao/mongo/models/Users.model.js'
 import cartService from './Carts.service.js'
 import config from '../config/config.js'
 
@@ -40,6 +40,7 @@ class userService {
     async updateUser(id, data) {
         try {
             console.log('updateUser: id: ' + id)
+            console.log(data)
             const result = await userModel.updateOne({ _id: id }, data)
             return result
         } catch (error) {

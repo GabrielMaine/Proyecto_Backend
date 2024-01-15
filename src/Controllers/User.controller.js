@@ -1,11 +1,10 @@
-import userService from '../services/User.service.js'
-import cartService from '../services/Carts.service.js'
+import UserRepository from '../repositories/users.repository.js'
 
 class userController {
     async createUser(req, res) {
         try {
             const data = req.body
-            const response = await userService.createUser(data)
+            const response = await UserRepository.create(data)
             res.status(201).json({
                 user: response,
                 status: 'Success',
@@ -21,7 +20,7 @@ class userController {
     async getUser(req, res) {
         try {
             const { email } = req.body
-            const response = await userService.getUser(email)
+            const response = await UserRepository.getByEmail(email)
             res.status(200).json({
                 user: response,
                 status: 'Success',
@@ -36,7 +35,7 @@ class userController {
 
     async getAllUsers(req, res) {
         try {
-            const response = await userService.getAllUsers()
+            const response = await UserRepository.getAll()
             res.status(200).json({
                 user: response,
                 status: 'Success',
@@ -53,7 +52,7 @@ class userController {
         try {
             const userId = req.params.id
             const data = req.body
-            const response = await userService.updateUser(userId, data)
+            const response = await UserRepository.update(userId, data)
             res.status(200).json({
                 user: response,
                 status: 'Success',

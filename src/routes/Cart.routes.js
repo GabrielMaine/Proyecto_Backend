@@ -18,4 +18,6 @@ router.put('/:cid/product/:pid', cartController.updateProduct)
 
 router.put('/:cid', cartController.paginateCart)
 
+router.get('/:cid/purchase', cartController.buyCart)
+
 export { router }

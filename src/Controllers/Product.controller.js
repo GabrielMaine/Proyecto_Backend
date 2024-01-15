@@ -1,11 +1,11 @@
 'use strict'
-import productService from '../services/Products.service.js'
+import productsRepository from '../repositories/products.repository.js'
 
 class productController {
     async createProduct(req, res) {
         try {
             let data = req.body
-            const response = await productService.createProduct(data)
+            const response = await productsRepository.create(data)
             res.status(201).json({
                 product: response,
                 status: 'Success',
@@ -21,7 +21,7 @@ class productController {
     async getProduct(req, res) {
         try {
             let pId = req.params.pid
-            const response = await productService.getProduct(pId)
+            const response = await productsRepository.getById(pId)
             res.status(200).json({
                 product: response,
                 status: 'Success',
@@ -61,7 +61,8 @@ class productController {
                 queries.category = category
             }
 
-            let products = await productService.paginateProducts(queries, options)
+            // let products = await productService.paginateProducts(queries, options)
+            let products = await productsRepository.paginate(queries, options)
 
             const response = {
                 status: products.docs.length > 0 ? 'success' : 'error',
@@ -73,10 +74,10 @@ class productController {
                 hasPrevPage: products.hasPrevPage,
                 hasNextPage: products.hasNextPage,
                 prevLink: products.hasPrevPage
-                    ? `http://localhost:8080/api/products?limit=${limit}&page=${products.prevPage}&sort=${sort}&status=${status}`
+                    ? `http://localhost:8080/api/products?limit=${limit}&page=${products.prevPage}&sort=${sort}&status=${status}&category=${category}`
                     : null,
                 nextLink: products.hasNextPage
-                    ? `http://localhost:8080/api/products?limit=${limit}&page=${products.nextPage}&sort=${sort}&status=${status}`
+                    ? `http://localhost:8080/api/products?limit=${limit}&page=${products.nextPage}&sort=${sort}&status=${status}&category=${category}`
                     : null,
             }
 
@@ -96,7 +97,7 @@ class productController {
         try {
             let pId = req.params.pid
             let data = req.body
-            const response = await productService.updateProduct(pId, data)
+            const response = await productsRepository.update(pId, data)
             res.status(200).json({
                 product: response,
                 status: 'Success',
@@ -112,7 +113,7 @@ class productController {
     async deleteProduct(req, res) {
         try {
             let pId = req.params.pid
-            const response = await productService.deleteProduct(pId)
+            const response = await productsRepository.delete(pId)
             res.status(200).json({
                 product: response,
                 status: 'Success',

@@ -1,0 +1,20 @@
+[
+    {
+        "first_name": "Gabriel",
+        "last_name": "Maine",
+        "email": "cart3@prueba.com",
+        "age": 28,
+        "password": "$2b$10$s8U2mMD29D1daa4JnuQGo.5ViOjizrr.BRMUTK31g5goKQB1GAiRi",
+        "cart": "3b08533d-2981-4961-91a9-303069a6665b",
+        "role": "user"
+    },
+    {
+        "first_name": "Gabriel",
+        "last_name": "Maine",
+        "email": "cart4@prueba.com",
+        "age": 28,
+        "password": "$2b$10$ZlfqgAORHK9ClLswapYWNup67q/UAm6fKBc/5dzeTyYJ358Tth19u",
+        "cart": "f80dfeee-c76c-49df-a343-8de07ad9f0bd",
+        "role": "user"
+    }
+]

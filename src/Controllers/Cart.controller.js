@@ -1,13 +1,16 @@
 'use strict'
-import cartService from '../services/Carts.service.js'
-import productService from '../services/Products.service.js'
+import cartsRepository from '../repositories/carts.repository.js'
+import productsRepository from '../repositories/products.repository.js'
+import ticketsRepository from '../repositories/tickets.repository.js'
+import usersRepository from '../repositories/users.repository.js'
+import { v4 as uuidv4 } from 'uuid'
 
 class cartController {
     async createCart(req, res) {
         try {
-            const response = await cartService.createCart()
+            const response = await cartsRepository.create()
             res.status(201).json({
-                user: response,
+                cart: response,
                 status: 'Success',
             })
         } catch (error) {
@@ -20,10 +23,10 @@ class cartController {
 
     async getCart(req, res) {
         try {
-            let cid = req.params.cid
-            let response = await cartService.populateCart(cid)
+            let cId = req.params.cid
+            let response = await cartsRepository.populate(cId)
             res.status(201).json({
-                user: response,
+                cart: response,
                 status: 'Success',
             })
         } catch (error) {
@@ -38,22 +41,21 @@ class cartController {
         try {
             let cId = req.params.cid
             let pId = req.params.pid
-            let product = await productService.getProduct(pId)
-            let cart = await cartService.findCart(cId)
+            let product = await productsRepository.getById(pId)
+            console.log(product)
+            let cart = await cartsRepository.getById(cId)
             let response = []
-            const cartIndex = cart.products.findIndex(el => el.product == product.id)
+            const cartIndex = cart.products.findIndex(el => el.product == pId)
 
             if (cartIndex === -1) {
-                cart.products.push({ product: product._id, quantity: 1 })
-                //updatedCart = await cartModel.findByIdAndUpdate({ _id: cId }, cart, { new: true })
-                response = await cartService.updateCart(cId, cart)
+                cart.products.push({ product: product._id || product.id, quantity: 1 })
+                response = await cartsRepository.update(cId, cart)
             } else {
                 cart.products[cartIndex].quantity++
-                // updatedCart = await cartModel.findByIdAndUpdate({ _id: cId }, cart, { new: true })
-                response = await cartService.updateCart(cId, cart)
+                response = await cartsRepository.update(cId, cart)
             }
             res.status(201).json({
-                user: response,
+                cart: response,
                 status: 'Success',
             })
         } catch (error) {
@@ -67,7 +69,7 @@ class cartController {
     async emptyCart(req, res) {
         try {
             let cId = req.params.cid
-            let response = await cartService.updateCart(cId, { products: [] })
+            let response = await cartsRepository.update(cId, { products: [] })
             res.status(201).json({
                 user: response,
                 status: 'Success',
@@ -84,8 +86,7 @@ class cartController {
         try {
             let cId = req.params.cid
             let pId = req.params.pid
-            let cart = await cartService.findCart(cId)
-            //const cartIndex = cart.products.findIndex(el => el.product == product.id)
+            let cart = await cartsRepository.getById(cId)
             const cartIndex = cart.products.findIndex(el => el.product == pId)
             let match = true
             let response = cart
@@ -93,10 +94,10 @@ class cartController {
                 match = false
             } else {
                 cart.products.splice(cartIndex, 1)
-                response = await cartService.updateCart(cId, cart)
+                response = await cartsRepository.update(cId, cart)
             }
             res.status(match ? 200 : 204).json({
-                user: response,
+                cart: response,
                 status: 'Success',
             })
         } catch (error) {
@@ -112,7 +113,7 @@ class cartController {
             let cId = req.params.cid
             let pId = req.params.pid
             let updatedQuantity = req.body
-            let cart = await cartService.findCart(cId)
+            let cart = await cartsRepository.getById(cId)
             //const cartIndex = cart.products.findIndex(el => el.product == product.id)
             const cartIndex = cart.products.findIndex(el => el.product == pId)
             let match = true
@@ -121,7 +122,7 @@ class cartController {
                 match = false
             } else {
                 cart.products[cartIndex].quantity = updatedQuantity.quantity
-                response = await cartService.updateCart(cId, cart)
+                response = await cartsRepository.update(cId, cart)
             }
             res.status(match ? 200 : 204).json({
                 user: response,
@@ -138,12 +139,74 @@ class cartController {
     async paginateCart(req, res) {
         try {
             let cId = req.params.cid
-            let cart = await cartService.populateCart(cId)
-            let response = await cartService.updateCart(cId, cart)
+            let products = req.body.payload
+            let response = await cartsRepository.update(cId, products)
 
             res.status(200).json({
-                user: response,
+                cart: response,
                 status: 'Success',
+            })
+        } catch (error) {
+            res.status(400).json({
+                error: error.message,
+                status: 'Fail',
+            })
+        }
+    }
+
+    async buyCart(req, res) {
+        try {
+            let cId = req.params.cid
+            let cart = await cartsRepository.getById(cId)
+            let user = await usersRepository.getByCart(cId)
+            let products = await productsRepository.getAll()
+
+            console.log(cart)
+
+            //Verificar items a comprar y actualizamos stock
+            const boughtItems = cart.products
+                .map(p => {
+                    const existingProduct = products.find(e => e._id.equals(p.product))
+
+                    if (existingProduct && existingProduct.stock >= p.quantity) {
+                        existingProduct.stock -= p.quantity
+                        productsRepository.update(existingProduct._id, existingProduct)
+                        return {
+                            _id: p.product,
+                            quantity: p.quantity,
+                            price: existingProduct.price,
+                        }
+                    }
+
+                    return null
+                })
+                .filter(item => item !== null)
+
+            //Vaciar el carrito y calcular el total de compra
+            const amount = boughtItems.reduce((total, product) => total + product.quantity * product.price, 0)
+
+            cart.products = cart.products.filter(
+                item => !boughtItems.some(boughtItem => boughtItem._id.equals(item.product))
+            )
+            cart = await cartsRepository.update(cId, cart)
+
+            //Crear el ticket
+
+            let ticketData = {
+                purchase_datetime: Date(),
+                purchaser: user.email,
+                code: uuidv4(),
+                amount: amount,
+            }
+
+            let ticket = await ticketsRepository.create(ticketData)
+
+            res.status(200).json({
+                status: 'Success',
+                payload: {
+                    ticket,
+                    cart,
+                },
             })
         } catch (error) {
             res.status(400).json({

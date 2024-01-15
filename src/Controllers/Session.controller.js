@@ -1,3 +1,5 @@
+import UserSensibleDTO from '../dao/dtos/users.sensible.dto.js'
+
 class sessionController {
     async register(req, res) {
         res.send({ status: 'success', message: 'User registered' })
@@ -46,12 +48,19 @@ class sessionController {
     }
 
     async current(req, res) {
-        req.session.user = req.user
-        console.log('Estoy en current')
-        if (req.session.user) {
-            res.status(200).send({ status: 'Sucess', message: req.session.user })
-        } else {
-            res.status(400).send({ status: 'Not found', message: 'No current session' })
+        try {
+            req.session.user = req.user
+            console.log('Estoy en current')
+            console.log(req.user)
+            const payload = new UserSensibleDTO(req.session.user)
+            if (req.session.user) {
+                res.status(200).send({ status: 'Sucess', message: payload })
+            } else {
+                res.status(400).send({ status: 'Not found', message: 'No current session' })
+            }
+        } catch (error) {
+            console.log(error.message)
+            res.status(400).send({ error: error.message })
         }
     }
 }

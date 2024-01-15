@@ -1,4 +1,4 @@
-import { cartModel } from '../dao/models/Carts.model.js'
+import { cartModel } from '../dao/mongo/models/Carts.model.js'
 
 class cartService {
     async createCart() {
@@ -33,6 +33,7 @@ class cartService {
     async updateCart(id, data) {
         try {
             console.log('updateCart: id: ' + id)
+            console.log(data)
             const result = await cartModel.findByIdAndUpdate({ _id: id }, data, { new: true })
             return result
         } catch (error) {
