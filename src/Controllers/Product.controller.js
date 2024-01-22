@@ -1,10 +1,21 @@
 'use strict'
 import productsRepository from '../repositories/products.repository.js'
+import CustomError from '../services/errors/CustomError.js'
+import errorCodes from '../services/errors/enums.js'
+import { generateProductErrorInfo } from '../services/errors/info.js'
 
 class productController {
     async createProduct(req, res) {
         try {
             let data = req.body
+            if (!data.title || !data.description || !data.code || !data.stock || !data.price || !data.category) {
+                CustomError.createError({
+                    name: 'Product creation error',
+                    cause: generateProductErrorInfo(data),
+                    message: 'Error trying to create a product',
+                    code: errorCodes.INVALID_TYPES_ERROR,
+                })
+            }
             const response = await productsRepository.create(data)
             res.status(201).json({
                 product: response,
@@ -12,7 +23,7 @@ class productController {
             })
         } catch (error) {
             res.status(400).json({
-                error: error.message,
+                error: error.cause || error.message,
                 status: 'Fail',
             })
         }

@@ -22,4 +22,6 @@ router.get('/profile', viewsController.profile)
 
 router.get('/', viewsController.root)
 
+router.get('/mockingproducts', viewsController.mockingProducts)
+
 export { router }

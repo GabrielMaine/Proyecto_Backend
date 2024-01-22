@@ -1,6 +1,7 @@
 'use strict'
 
 import express from 'express'
+import compression from 'express-compression'
 import session from 'express-session'
 import MongoStore from 'connect-mongo'
 import handlebars from 'express-handlebars'
@@ -15,6 +16,7 @@ import { messageModel } from './dao/mongo/models/Messages.model.js'
 import productService from './services/Products.service.js'
 import passport from 'passport'
 import initializedPassport from './config/passport.config.js'
+import errorHandler from './services/errors/index.js'
 
 //Configuramos los servidores
 const app = express()
@@ -32,6 +34,12 @@ connectDB()
 app.use(express.static(process.cwd() + '/public'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(
+    compression({
+        brotli: { enabled: true, zlib: {} },
+    })
+)
+app.use(errorHandler)
 
 app.use(
     session({

@@ -1,5 +1,8 @@
 import productService from '../services/Products.service.js'
 import cartService from '../services/Carts.service.js'
+import productsRepository from '../repositories/products.repository.js'
+import cartsRepository from '../repositories/carts.repository.js'
+import { generateProduct } from '../helpers/generateProduct.js'
 
 class viewsController {
     async root(req, res) {
@@ -76,6 +79,19 @@ class viewsController {
             let user = req.session.user
             console.log(user)
             res.render('home', { results, user })
+        } catch (error) {
+            console.log(error.message)
+            res.render('404', { error })
+        }
+    }
+
+    async mockingProducts(req, res) {
+        try {
+            let productArray = []
+            for (let i = 0; i < 100; i++) {
+                productArray.push(generateProduct())
+            }
+            res.send({ status: 'success', payload: productArray })
         } catch (error) {
             console.log(error.message)
             res.render('404', { error })
