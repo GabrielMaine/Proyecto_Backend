@@ -97,6 +97,21 @@ class viewsController {
             res.render('404', { error })
         }
     }
+
+    async loggerTest(req, res) {
+        try {
+            req.logger.debug(`${req.method} en la siguiente URL: ${req.url} - ${new Date().toLocaleString()}`)
+            req.logger.http(`${req.method} en la siguiente URL: ${req.url} - ${new Date().toLocaleString()}`)
+            req.logger.info(`${req.method} en la siguiente URL: ${req.url} - ${new Date().toLocaleString()}`)
+            req.logger.warning(`${req.method} en la siguiente URL: ${req.url} - ${new Date().toLocaleString()}`)
+            req.logger.error(`${req.method} en la siguiente URL: ${req.url} - ${new Date().toLocaleString()}`)
+            req.logger.fatal(`${req.method} en la siguiente URL: ${req.url} - ${new Date().toLocaleString()}`)
+            res.send('Logger Test')
+        } catch (error) {
+            console.log(error.message)
+            res.render('404', { error })
+        }
+    }
 }
 
 export default new viewsController()

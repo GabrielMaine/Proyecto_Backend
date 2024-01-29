@@ -17,6 +17,7 @@ import productService from './services/Products.service.js'
 import passport from 'passport'
 import initializedPassport from './config/passport.config.js'
 import errorHandler from './services/errors/index.js'
+import { generateLogger } from './helpers/logger/logger.js'
 
 //Configuramos los servidores
 const app = express()
@@ -40,7 +41,7 @@ app.use(
     })
 )
 app.use(errorHandler)
-
+app.use(generateLogger)
 app.use(
     session({
         store: new MongoStore({

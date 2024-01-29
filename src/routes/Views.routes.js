@@ -24,4 +24,6 @@ router.get('/', viewsController.root)
 
 router.get('/mockingproducts', viewsController.mockingProducts)
 
+router.get('/loggerTest', viewsController.loggerTest)
+
 export { router }

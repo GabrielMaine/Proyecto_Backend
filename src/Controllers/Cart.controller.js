@@ -14,6 +14,7 @@ class cartController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',
@@ -30,6 +31,7 @@ class cartController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',
@@ -42,7 +44,6 @@ class cartController {
             let cId = req.params.cid
             let pId = req.params.pid
             let product = await productsRepository.getById(pId)
-            console.log(product)
             let cart = await cartsRepository.getById(cId)
             let response = []
             const cartIndex = cart.products.findIndex(el => el.product == pId)
@@ -59,6 +60,7 @@ class cartController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',
@@ -75,6 +77,7 @@ class cartController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',
@@ -101,6 +104,7 @@ class cartController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',
@@ -129,6 +133,7 @@ class cartController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',
@@ -147,6 +152,7 @@ class cartController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',
@@ -160,8 +166,6 @@ class cartController {
             let cart = await cartsRepository.getById(cId)
             let user = await usersRepository.getByCart(cId)
             let products = await productsRepository.getAll()
-
-            console.log(cart)
 
             //Verificar items a comprar y actualizamos stock
             const boughtItems = cart.products
@@ -209,6 +213,7 @@ class cartController {
                 },
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',

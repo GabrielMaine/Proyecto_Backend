@@ -50,8 +50,6 @@ class sessionController {
     async current(req, res) {
         try {
             req.session.user = req.user
-            console.log('Estoy en current')
-            console.log(req.user)
             const payload = new UserSensibleDTO(req.session.user)
             if (req.session.user) {
                 res.status(200).send({ status: 'Sucess', message: payload })
@@ -59,7 +57,6 @@ class sessionController {
                 res.status(400).send({ status: 'Not found', message: 'No current session' })
             }
         } catch (error) {
-            console.log(error.message)
             res.status(400).send({ error: error.message })
         }
     }

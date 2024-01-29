@@ -22,6 +22,7 @@ class productController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.cause || error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.cause || error.message,
                 status: 'Fail',
@@ -38,6 +39,7 @@ class productController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',
@@ -97,6 +99,7 @@ class productController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',
@@ -114,6 +117,7 @@ class productController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',
@@ -130,6 +134,7 @@ class productController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',

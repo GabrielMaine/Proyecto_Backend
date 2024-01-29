@@ -10,6 +10,7 @@ class userController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',
@@ -26,6 +27,7 @@ class userController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',
@@ -41,6 +43,7 @@ class userController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',
@@ -58,6 +61,7 @@ class userController {
                 status: 'Success',
             })
         } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
                 error: error.message,
                 status: 'Fail',

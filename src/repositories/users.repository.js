@@ -34,9 +34,7 @@ class UserRepository {
         payload.cart = cart._id
         payload.password = bcrypt.hashSync(payload.password, bcrypt.genSaltSync(10))
         payload.role = payload.email === config.adminEmail ? 'admin' : 'user'
-        console.log(payload)
         const data = new UserDTO(payload)
-        console.log(data)
         let result = await this.dao.create(data)
         return result
     }
