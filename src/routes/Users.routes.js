@@ -11,4 +11,10 @@ router.post('/', userController.createUser)
 
 router.put('/:id', userController.updateUser)
 
+router.put('/premium/:id', userController.premiumUser)
+
+router.post('/apiRestorePassword', userController.restorePassword)
+
+router.post('/apiResetPassword', userController.resetPassword)
+
 export { router }

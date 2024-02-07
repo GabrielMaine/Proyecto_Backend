@@ -29,6 +29,11 @@ class UserRepository {
         return result
     }
 
+    async getByToken(token) {
+        let result = await this.dao.getByToken(token)
+        return result
+    }
+
     async create(payload) {
         const cart = await cartDAO.create()
         payload.cart = cart._id

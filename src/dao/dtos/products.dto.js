@@ -8,6 +8,7 @@ export default class ProductDTO {
             (this.code = payload.code),
             (this.stock = payload.stock),
             (this.category = payload.category),
-            (this.status = payload.status)
+            (this.status = payload.status),
+            (this.owner = payload.owner || 'admin')
     }
 }

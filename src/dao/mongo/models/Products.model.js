@@ -42,6 +42,11 @@ const productsSchema = new mongoose.Schema({
         enum: ['Disponible', 'No_disponible'],
         default: 'Disponible',
     },
+    owner: {
+        type: String,
+        required: true,
+        default: 'Admin',
+    },
 })
 
 productsSchema.plugin(mongoosePaginate)

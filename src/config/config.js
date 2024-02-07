@@ -8,4 +8,9 @@ export default {
     adminPassword: process.env.ADMIN_PASSWORD,
     persistence: process.env.PERSISTENCE,
     enviroment: process.env.ENVIROMENT,
+    mailing: {
+        service: process.env.MAILING_SERVICE,
+        user: process.env.MAILING_USER,
+        password: process.env.MAILING_PASSWORD,
+    },
 }

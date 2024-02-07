@@ -3,6 +3,7 @@ import cartService from '../services/Carts.service.js'
 import productsRepository from '../repositories/products.repository.js'
 import cartsRepository from '../repositories/carts.repository.js'
 import { generateProduct } from '../helpers/generateProduct.js'
+import usersRepository from '../repositories/users.repository.js'
 
 class viewsController {
     async root(req, res) {
@@ -35,10 +36,8 @@ class viewsController {
         try {
             let cId = req.params.cid
             let cart = await cartService.populateCart(cId)
-            console.log(cart)
             res.render('cartById', { cart: cart, style: 'cart.css' })
         } catch (error) {
-            console.log(error.message)
             res.render('404', { error: error, style: '404.css' })
         }
     }
@@ -52,7 +51,6 @@ class viewsController {
             let products = await productService.getAllProducts()
             res.render('realTimeProducts', { products })
         } catch (error) {
-            console.log(error.message)
             res.render('404', { error })
         }
     }
@@ -77,10 +75,8 @@ class viewsController {
                     : null,
             }
             let user = req.session.user
-            console.log(user)
             res.render('home', { results, user })
         } catch (error) {
-            console.log(error.message)
             res.render('404', { error })
         }
     }
@@ -93,7 +89,6 @@ class viewsController {
             }
             res.send({ status: 'success', payload: productArray })
         } catch (error) {
-            console.log(error.message)
             res.render('404', { error })
         }
     }
@@ -108,7 +103,35 @@ class viewsController {
             req.logger.fatal(`${req.method} en la siguiente URL: ${req.url} - ${new Date().toLocaleString()}`)
             res.send('Logger Test')
         } catch (error) {
-            console.log(error.message)
+            res.render('404', { error })
+        }
+    }
+
+    async forgotPassword(req, res) {
+        try {
+            res.render('forgotPassword', { style: 'forgotPassword.css' })
+        } catch (error) {
+            res.render('404', { error })
+        }
+    }
+
+    async resetPassword(req, res) {
+        try {
+            let { token } = req.query
+            let user = await usersRepository.getByToken(token)
+            //Verificamos la validez del codigo
+            if (!user) {
+                throw new Error('Codigo de validación invalido')
+            }
+            //Verificamos que no haya expirado
+            let isExpired = false
+            let isntExpired = true
+            if (user.expiration < new Date()) {
+                isExpired = true
+                isntExpired = false
+            }
+            res.render('resetPassword', { user: user, isExpired: isExpired, isntExpired: isntExpired })
+        } catch (error) {
             res.render('404', { error })
         }
     }

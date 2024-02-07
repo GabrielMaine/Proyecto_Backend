@@ -18,8 +18,14 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
+        enum: ['user', 'admin', 'premium'],
         default: 'user',
+    },
+    token: {
+        type: String,
+    },
+    expiration: {
+        type: Date,
     },
 })
 

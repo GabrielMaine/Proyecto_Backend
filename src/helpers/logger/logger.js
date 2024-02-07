@@ -23,9 +23,9 @@ switch (config.enviroment) {
 export const generateLogger = (req, res, next) => {
     req.logger = logger
     if (config.enviroment === 'PRODUCTION') {
-        req.logger.info('Logger setted for production enviroment')
+        // req.logger.info('Logger setted for production enviroment')
     } else {
-        req.logger.info('Logger setted for development enviroment')
+        // req.logger.info('Logger setted for development enviroment')
     }
     next()
 }

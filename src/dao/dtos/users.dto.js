@@ -7,6 +7,8 @@ export default class UserDTO {
             (this.age = payload.age),
             (this.password = payload.password),
             (this.cart = payload.cart),
-            (this.role = payload.role)
+            (this.role = payload.role),
+            (this.token = payload.token),
+            (this.expiration = payload.expiration)
     }
 }

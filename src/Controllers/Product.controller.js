@@ -8,6 +8,7 @@ class productController {
     async createProduct(req, res) {
         try {
             let data = req.body
+            let user = req.session.user || {}
             if (!data.title || !data.description || !data.code || !data.stock || !data.price || !data.category) {
                 CustomError.createError({
                     name: 'Product creation error',
@@ -16,6 +17,7 @@ class productController {
                     code: errorCodes.INVALID_TYPES_ERROR,
                 })
             }
+            data.owner = user.role === 'premium' ? user.email : 'admin'
             const response = await productsRepository.create(data)
             res.status(201).json({
                 product: response,
@@ -128,6 +130,11 @@ class productController {
     async deleteProduct(req, res) {
         try {
             let pId = req.params.pid
+            let user = req.session.user || {}
+            let product = await productsRepository.getById(pId)
+            if (user.role === 'premium' && user.email !== product.owner) {
+                throw new Error('Premium users can only delete their products')
+            }
             const response = await productsRepository.delete(pId)
             res.status(200).json({
                 product: response,

@@ -70,7 +70,7 @@ const initializedPassport = () => {
         new LocalStrategy({ passReqToCallback: true, usernameField: 'email' }, async (req, email, password, done) => {
             try {
                 const user = await userService.getUser(email)
-                console.log(' User login ' + user)
+
                 if (!user) {
                     console.log('No user')
                     return done(null, false)

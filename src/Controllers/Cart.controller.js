@@ -45,6 +45,12 @@ class cartController {
             let pId = req.params.pid
             let product = await productsRepository.getById(pId)
             let cart = await cartsRepository.getById(cId)
+            let user = (await usersRepository.getByCart(cId)) || {}
+
+            if (user.role === 'premium' && user.email === product.owner) {
+                throw new Error('Premium users cant add products that they own to their cart')
+            }
+
             let response = []
             const cartIndex = cart.products.findIndex(el => el.product == pId)
 

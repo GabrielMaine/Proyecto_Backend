@@ -23,6 +23,11 @@ export default class Users {
         return user
     }
 
+    getByToken = async token => {
+        let user = await userModel.findOne({ token: token }).lean()
+        return user
+    }
+
     create = async data => {
         let user = await userModel.create(data)
         return user
