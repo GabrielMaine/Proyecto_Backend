@@ -1,0 +1,509 @@
+paths:
+    /api/carts:
+        post:
+            summary: Crea un nuevo carrito
+            tags:
+                - Carts
+            responses:
+                '200':
+                    description: Se creo un nuevo carrito exitosamente
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/responses/emptyCart'
+                '500':
+                    description: Error interno del servidor, usualmente generado por una query defectuosa o un fallo de conexión con la base de datos
+    /api/carts/{cid}:
+        get:
+            summary: Obtiene un carrito segun su id
+            tags:
+                - Carts
+            parameters:
+                - name: cid
+                  in: path
+                  required: true
+                  description: Id del carrito que se desea solicitar
+                  schema:
+                      $type: string
+            responses:
+                '200':
+                    description: Se obtuvo el carrito solicitado exitosamente
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/responses/paginatedCart'
+                '404':
+                    description: No se encontro un carrito con el id solicitado en la base de datos
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/cartNotFound'
+                '500':
+                    description: Error interno del servidor, usualmente generado por una query defectuosa o un fallo de conexión con la base de datos
+
+        put:
+            summary: Actualiza el contenido de un carrito segun una lista paginada de productos
+            tags:
+                - Carts
+            parameters:
+                - name: cid
+                  in: path
+                  required: true
+                  description: Id del carrito que se desea solicitar
+                  schema:
+                      $type: string
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/requestBodies/paginatedCart'
+            responses:
+                '200':
+                    description: Se actualizo el contenido del carrito solicitado exitosamente
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/responses/paginatedCart'
+                '404':
+                    description: No se encontro un carrito con el id solicitado en la base de datos
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/cartNotFound'
+                '500':
+                    description: Error interno del servidor, usualmente generado por una query defectuosa o un fallo de conexión con la base de datos
+
+        delete:
+            summary: Elimina todos los productos de un carrito
+            tags:
+                - Carts
+            parameters:
+                - name: cid
+                  in: path
+                  required: true
+                  description: Id del carrito que se desea solicitar
+                  schema:
+                      $type: string
+            responses:
+                '200':
+                    description: Se eliminaron los productos el carrito solicitado exitosamente
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/responses/emptyCart'
+                '404':
+                    description: No se encontro un carrito con el id solicitado en la base de datos
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/cartNotFound'
+                '500':
+                    description: Error interno del servidor, usualmente generado por una query defectuosa o un fallo de conexión con la base de datos
+
+    /api/carts/{cid}/product/{pid}:
+        post:
+            summary: Agrega una unidad de un determinado producto al carrito seleccionado
+            tags:
+                - Carts
+            parameters:
+                - name: cid
+                  in: path
+                  required: true
+                  description: Id del carrito que se desea solicitar
+                  schema:
+                      $type: string
+                - name: pid
+                  in: path
+                  required: true
+                  description: Id del producto que se desea agregar
+                  schema:
+                      $type: string
+            responses:
+                '200':
+                    description: Se agrego una unidad del producto indicado al carrito seleccionado
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/cart'
+                '401':
+                    description: El usuario no tiene los permisos necesarios para agregar el producto
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/cartAuthError'
+                '404':
+                    description: No se encontro el carrito o el producto solicitados segun su id
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/cartNotFound'
+                '500':
+                    description: Error interno del servidor, usualmente generado por una query defectuosa o un fallo de conexión con la base de datos
+
+        put:
+            summary: Establece la cantidad de unidades de un determinado producto del carrito seleccionado según la información del body
+            tags:
+                - Carts
+            parameters:
+                - name: cid
+                  in: path
+                  required: true
+                  description: Id del carrito que se desea solicitar
+                  schema:
+                      $type: string
+                - name: pid
+                  in: path
+                  required: true
+                  description: Id del producto que se desea agregar/quitar
+                  schema:
+                      $type: string
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/requestBodies/quantity'
+            responses:
+                '200':
+                    description: Se establecio la cantidad de unidades del producto indicado en el carrito seleccionado
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/cart'
+                '401':
+                    description: El usuario no tiene los permisos necesarios para modificar la cantidad de productos
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/cartAuthError'
+                '404':
+                    description: No se encontro el carrito o el producto solicitados segun su id
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/cartNotFound'
+                '500':
+                    description: Error interno del servidor, usualmente generado por una query defectuosa o un fallo de conexión con la base de datos
+
+        delete:
+            summary: Elimina un producto del carrito seleccionado
+            tags:
+                - Carts
+            parameters:
+                - name: cid
+                  in: path
+                  required: true
+                  description: Id del carrito que se desea solicitar
+                  schema:
+                      $type: string
+                - name: pid
+                  in: path
+                  required: true
+                  description: Id del producto que se desea quitar
+                  schema:
+                      $type: string
+            responses:
+                '200':
+                    description: Se removio el producto indicado en el carrito seleccionado
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/cart'
+                '404':
+                    description: No se encontro el carrito o el producto solicitados segun su id
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/cartNotFound'
+                '500':
+                    description: Error interno del servidor, usualmente generado por una query defectuosa o un fallo de conexión con la base de datos
+
+    /api/carts/{cid}/purchase:
+        get:
+            summary: Efectua la compra de los productos de un carrito, actualizando stock y devolviendo un ticket
+            tags:
+                - Carts
+            parameters:
+                - name: cid
+                  in: path
+                  required: true
+                  description: Id del carrito que se desea comprar
+                  schema:
+                      $type: string
+            responses:
+                '200':
+                    description: Se compraron todos los productos del carrito cuya cantidad era menor o igual al stock disponible
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/responses/purchasedCart'
+                '400':
+                    description: 'No se pudo completar la compra por algun error del usuario (ej: querer realizar una compra de cero productos)'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/purchaseError'
+                '404':
+                    description: No se encontro el carrito segun su id
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/cartNotFound'
+                '500':
+                    description: Error interno del servidor, usualmente generado por una query defectuosa o un fallo de conexión con la base de datos
+
+components:
+    schemas:
+        cart:
+            type: object
+            properties:
+                _id:
+                    type: string
+                    format: ObjectId
+                    description: Id autogenerado por MongoDB
+                products:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/productInCart'
+                    description: Arreglo con todos los productos cargados al carro
+            example:
+                _id: ObjectId(6578a200083dac1269734dba)
+                products:
+                    - product: '654a79ec61487a31f0a2f5bf'
+                      quantity: 41
+                      _id: '65a57569c8248a1ffa64e386'
+                    - product: '654a7a1a61487a31f0a2f5c2'
+                      quantity: 3
+                      _id: '65c3c39618cc37d7389271d9'
+
+        productInCart:
+            type: object
+            properties:
+                product:
+                    type: string
+                    description: ID del producto
+                quantity:
+                    type: integer
+                    description: Cantidad del producto en el carrito
+                _id:
+                    type: string
+                    format: ObjectId
+                    description: Id autogenerado por MongoDB
+            example:
+                product: '654a79ec61487a31f0a2f5bf'
+                quantity: 18
+                _id: ObjectId(65a57569c8248a1ffa64e386)
+
+        ticket:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: Código único de identificación de los tickets
+                purchase_datetime:
+                    type: string
+                    format: date
+                    description: Fecha y hora de emisión del ticket
+                amount:
+                    type: number
+                    description: Monto total en pesos argentinos de la compra
+                purchaser:
+                    type: string
+                    description: E-mail del dueño del carrito que fue comprado
+                _id:
+                    type: string
+                    format: ObjectId
+                    description: Id autogenerado por MongoDB
+            example:
+                code: '3c456dc3-281e-4943-9523-d587c334b9a9'
+                purchase_datetime: '2024-02-13T19:57:07.000Z'
+                amount: 13000
+                purchaser: gago@gmail.com
+                _id: ObjectId(65cbc993c37aab48349d480c)
+
+    errors:
+        cartNotFound:
+            type: string
+            example: Cast to ObjectId failed for value "cid" (type string) at path "_id" for model "carts"
+        keyError:
+            type: string
+            example: 'Key error: missing values'
+        cartAuthError:
+            type: string
+            example: 'Premium users cant add products that they own to their cart'
+        purchaseError:
+            type: string
+            example: 'Purchase error: can not purchase zero products'
+
+    requestBodies:
+        paginatedCart:
+            type: object
+            properties:
+                payload:
+                    type: array
+                    description: Arreglo con todos los productos que satisfacen la busqueda y el filtrado
+                totalPages:
+                    type: number
+                    description: Cantidad de páginas con contenido
+                prevPage:
+                    type:
+                        - number
+                        - null
+                    description: Número de la página anterior. En caso de que el numero fuera a ser negativo devuelve null
+                nextPage:
+                    type: number
+                    description: Número de la página siguiente
+                page:
+                    type: number
+                    description: Número de la página actual
+                hasPrevPage:
+                    type: bolean
+                    description: Boleano que indica si la página anterior tiene contenido (payload no vacio)
+                hasNextPage:
+                    type: bolean
+                    description: Boleano que indica si la página siguiente tiene contenido (payload no vacio)
+                prevLink:
+                    type:
+                        - string
+                        - null
+                    description: Enlace al endpoint con la página anterior
+                nextLink:
+                    type:
+                        - string
+                        - null
+                    description: Enlace al endpoint con la página siguiente
+            example:
+                payload:
+                    [
+                        {
+                            'owner': 'Admin',
+                            '_id': '654a79ec61487a31f0a2f5bf',
+                            'title': 'Coca Cola',
+                            'description': 'Coca cola de 1l',
+                            'price': 1000,
+                            'code': 'CC1l',
+                            'stock': 17,
+                            '__v': 0,
+                            'category': 'Bebida',
+                            'status': 'Disponible',
+                            'thumbnail': '',
+                        },
+                        {
+                            '_id': '654a7a1a61487a31f0a2f5c2',
+                            'title': 'Quilmes',
+                            'description': 'Quilmes de 1l',
+                            'price': 1300,
+                            'code': 'QB1l',
+                            'stock': 995,
+                            '__v': 0,
+                            'category': 'Bebida',
+                            'status': 'Disponible',
+                            'thumbnail': '',
+                            'owner': 'gago@gmail.com',
+                        },
+                        {
+                            'owner': 'Admin',
+                            '_id': '654a7a3b61487a31f0a2f5c4',
+                            'title': 'Heineken',
+                            'description': 'Heineken de 1l',
+                            'price': 1600,
+                            'code': 'HB1l',
+                            'stock': 1000,
+                            '__v': 0,
+                            'category': 'Bebida',
+                            'status': 'Disponible',
+                        },
+                    ]
+                totalPages: 5
+                prevPage: null
+                nextPage: 2
+                page: 1
+                hasPrevPage: false
+                hasNextPage: true
+                prevLink: null
+                nextLink: http://localhost:8080/api/products?limit=3&page=2&sort=&status=&category=
+
+        quantity:
+            type: object
+            properties:
+                quantity:
+                    type: number
+                    description: Cantidad de unidades del producto
+            example:
+                quantity: 8
+
+    responses:
+        emptyCart:
+            type: object
+            properties:
+                _id:
+                    type: string
+                    format: ObjectId
+                    description: Id autogenerado por MongoDB
+                products:
+                    type: array
+                    description: Arreglo vacio para los productos cargados al carro
+            example:
+                _id: '6578a200083dac126973rts'
+                products:
+                    -
+
+        paginatedCart:
+            type: object
+            properties:
+                _id:
+                    type: string
+                    format: ObjectId
+                    description: Id autogenerado por MongoDB
+                products:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Product'
+                    description: Arreglo con todos los productos cargados al carro
+            example:
+                _id: '6578a200083dac1269734dba'
+                products:
+                    - product:
+                          - _id: '654a79ec61487a31f0a2f5bf'
+                            title: Quilmes
+                            description: Quilmes de 1l
+                            price: 1700
+                            code: QBL1
+                            stock: 995
+                            category: Bebida
+                            status: Disponible
+                            thumbnail: ''
+                            owner: admin
+                      quantity: 41
+                      _id: '65a57569c8248a1ffa64e386'
+
+        purchasedCart:
+            type: object
+            properties:
+                ticket:
+                    type: object
+                    items:
+                        $ref: '#/components/schemas/ticket'
+                    description: Ticket de la compra
+                cart:
+                    type: object
+                    items:
+                        $ref: '#/components/schemas/cart'
+                    description: Carrito de compra con los productos que no pudieron ser comprados
+            example:
+                ticket:
+                    - code: '3c456dc3-281e-4943-9523-d587c334b9a9'
+                      purchase_datetime: '2024-02-13T19:57:07.000Z'
+                      amount: 17000
+                      purchaser: gago@gmail.com
+                      _id: ObjectId(65cbc993c37aab48349d480c)
+                cart:
+                    - _id: ObjectId(6578a200083dac1269734dba)
+                      products:
+                          - product: '654a79ec61487a31f0a2f5bf'
+                            quantity: 41
+                            _id: '65a57569c8248a1ffa64e386'
+                          - product: '654a7a1a61487a31f0a2f5c2'
+                            quantity: 3
+                            _id: '65c3c39618cc37d7389271d9'

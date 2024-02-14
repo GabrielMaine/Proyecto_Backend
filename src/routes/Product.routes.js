@@ -6,9 +6,9 @@ const router = Router()
 
 router.get('/', productController.paginateProducts)
 
-router.get('/:pid', productController.getProduct)
+router.post('/', productController.createProduct)
 
-router.post('', productController.createProduct)
+router.get('/:pid', productController.getProduct)
 
 router.put('/:pid', productController.updateProduct)
 

@@ -9,13 +9,19 @@ class productController {
         try {
             let data = req.body
             let user = req.session.user || {}
+            // if (!data.title || !data.description || !data.code || !data.stock || !data.price || !data.category) {
+            //     CustomError.createError({
+            //         name: 'Product creation error',
+            //         cause: generateProductErrorInfo(data),
+            //         message: 'Error trying to create a product',
+            //         code: errorCodes.INVALID_TYPES_ERROR,
+            //     })
+            // }
             if (!data.title || !data.description || !data.code || !data.stock || !data.price || !data.category) {
-                CustomError.createError({
-                    name: 'Product creation error',
-                    cause: generateProductErrorInfo(data),
-                    message: 'Error trying to create a product',
-                    code: errorCodes.INVALID_TYPES_ERROR,
-                })
+                throw new Error('Key error: missing values')
+            }
+            if (data.stock < 0 || data.price < 0) {
+                throw new Error('Key error: stock and price can not be negative')
             }
             data.owner = user.role === 'premium' ? user.email : 'admin'
             const response = await productsRepository.create(data)
@@ -24,11 +30,19 @@ class productController {
                 status: 'Success',
             })
         } catch (error) {
-            req.logger.error(`${error.cause || error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.cause || error.message,
-                status: 'Fail',
-            })
+            if (error.message.includes('duplicate key error collection')) error.message = 'Key error: duplicated code'
+            if (error.message.includes('Key error')) {
+                res.status(400).json({
+                    status: 'Fail',
+                    error: error.message,
+                })
+            } else {
+                req.logger.error(`${error.cause || error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                res.status(500).json({
+                    status: 'Fail',
+                    error: error.cause || error.message,
+                })
+            }
         }
     }
 
@@ -41,11 +55,18 @@ class productController {
                 status: 'Success',
             })
         } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
-            })
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                res.status(500).json({
+                    status: 'Fail',
+                    error: error.message,
+                })
+            }
         }
     }
 
@@ -97,14 +118,14 @@ class productController {
             }
 
             res.status(200).json({
-                payload: response,
                 status: 'Success',
+                payload: response,
             })
         } catch (error) {
             req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
+            res.status(500).json({
                 status: 'Fail',
+                error: error.message,
             })
         }
     }
@@ -113,17 +134,34 @@ class productController {
         try {
             let pId = req.params.pid
             let data = req.body
+            if (data.stock < 0 || data.price < 0) {
+                throw new Error('Key error: stock and price can not be negative')
+            }
             const response = await productsRepository.update(pId, data)
             res.status(200).json({
-                product: response,
                 status: 'Success',
+                product: response,
             })
         } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
-            })
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                if (error.message.includes('Key error')) {
+                    res.status(400).json({
+                        status: 'Fail',
+                        error: error.message,
+                    })
+                } else {
+                    req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                    res.status(500).json({
+                        status: 'Fail',
+                        error: error.message,
+                    })
+                }
+            }
         }
     }
 
@@ -137,15 +175,29 @@ class productController {
             }
             const response = await productsRepository.delete(pId)
             res.status(200).json({
-                product: response,
                 status: 'Success',
+                product: response,
             })
         } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
-            })
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                if (error.message.includes('Premium users can only delete their products')) {
+                    res.status(401).json({
+                        status: 'Not authorized',
+                        error: error.message,
+                    })
+                } else {
+                    req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                    res.status(500).json({
+                        status: 'Fail',
+                        error: error.message,
+                    })
+                }
+            }
         }
     }
 }

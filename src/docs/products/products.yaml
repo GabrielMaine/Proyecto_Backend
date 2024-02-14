@@ -1,0 +1,353 @@
+paths:
+    /api/products:
+        get:
+            summary: Obtiene una lista paginada de los productos
+            tags:
+                - Products
+            parameters:
+                - in: query
+                  name: limit
+                  schema:
+                      type: integer
+                  description: Cantidad de productos por página
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                  description: Número de página a mostrar
+                - in: query
+                  name: sort
+                  schema:
+                      type: string
+                  description: Orden ascendente o descendente de los productos
+                - in: query
+                  name: status
+                  schema:
+                      type: string
+                  description: Filtro para los productos según su estado
+                - in: query
+                  name: category
+                  schema:
+                      type: string
+                  description: Filtro para los productos según su categoría
+            responses:
+                '200':
+                    description: Devuelve los productos paginados segun las opciones y los filtros aplicados
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/responses/Paginate'
+                '500':
+                    description: Error interno del servidor, usualmente generado por una query defectuosa o un fallo de conexión con la base de datos
+
+        post:
+            summary: Crea un nuevo producto
+            tags:
+                - Products
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/requestBodies/Updatedproduct'
+            responses:
+                '201':
+                    description: Se creo un nuevo producto exitosamente
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Product'
+                '400':
+                    description: No se pudo crear el nuevo producto por un error en los datos asignados
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/keyError'
+                '500':
+                    description: Error interno del servidor, usualmente generado por una query defectuosa o un fallo de conexión con la base de datos
+
+    /api/products/{pid}:
+        get:
+            summary: Obtiene un unico producto segun su Id
+            tags:
+                - Products
+            parameters:
+                - name: pid
+                  in: path
+                  required: true
+                  description: Id del producto que se desea solicitar
+                  schema:
+                      $type: string
+            responses:
+                '200':
+                    description: Se obtuvo el producto solicitado exitosamente
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Product'
+                '404':
+                    description: No se encontro un producto con el id solicitado en la base de datos
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/notFound'
+                '500':
+                    description: Error interno del servidor, usualmente generado por una query defectuosa o un fallo de conexión con la base de datos
+
+        put:
+            summary: Modifica un único producto seleccionado segun su Id
+            tags:
+                - Products
+            parameters:
+                - name: pid
+                  in: path
+                  required: true
+                  description: Id del producto que se desea modificar
+                  schema:
+                      $type: string
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/requestBodies/Updatedproduct'
+            responses:
+                '200':
+                    description: Se modifico el producto solicitado exitosamente
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Product'
+                '400':
+                    description: No se pudo modificar el producto por un error en los datos asignados
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/keyError'
+                '404':
+                    description: No se encontro un producto con el id solicitado en la base de datos
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/notFound'
+                '500':
+                    description: Error interno del servidor, usualmente generado por una query defectuosa o un fallo de conexión con la base de datos
+        delete:
+            summary: Elimina un único producto seleccionado segun su Id
+            tags:
+                - Products
+            parameters:
+                - name: pid
+                  in: path
+                  required: true
+                  description: Id del producto que se desea eliminar
+                  schema:
+                      $type: string
+            responses:
+                '200':
+                    description: Se elimino el producto solicitado exitosamente
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Product'
+                '401':
+                    description: El usuario no tiene los permisos necesarios para eliminar el producto
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/productAuthError'
+                '404':
+                    description: No se encontro un producto con el id solicitado en la base de datos
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/errors/notFound'
+                '500':
+                    description: Error interno del servidor, usualmente generado por una query defectuosa o un fallo de conexión con la base de datos
+
+components:
+    schemas:
+        Product:
+            type: object
+            properties:
+                _id:
+                    type: string
+                    format: ObjectId
+                    description: Id autogenerado por mongo
+                title:
+                    type: string
+                    description: Nombre del producto
+                description:
+                    type: string
+                    description: Breve descripcion del producto
+                price:
+                    type: number
+                    description: Precio en pesos argentinos del producto
+                thumbnail:
+                    type: string
+                    description: Imagen del producto (opcional)
+                code:
+                    type: string
+                    description: Codigo de identificación único del producto
+                stock:
+                    type: number
+                    description: Cantidad en stock del producto
+                category:
+                    type: string
+                    description: Categoria del producto (Comida, bebida, etc...)
+                status:
+                    type: string
+                    description: 'Estado actual del producto: disponible o no disponible'
+                owner:
+                    type: string
+                    description: Email del usuario dueño del producto
+            example:
+                _id: ObjectId(654a7a1a61487a31f0a2f5c2)
+                title: Quilmes
+                description: Quilmes de 1l
+                price: 1300
+                code: QB1l
+                stock: 995
+                category: Bebida
+                status: Disponible
+                owner: gago@gmail.com
+
+    requestBodies:
+        Updatedproduct:
+            type: object
+            properties:
+                title:
+                    type: string
+                    description: Nombre del producto
+                description:
+                    type: string
+                    description: Breve descripcion del producto
+                price:
+                    type: number
+                    description: Precio en pesos argentinos del producto
+                thumbnail:
+                    type: string
+                    description: Imagen del producto (opcional)
+                code:
+                    type: string
+                    description: Codigo de identificación único del producto
+                stock:
+                    type: number
+                    description: Cantidad en stock del producto
+                category:
+                    type: string
+                    description: Categoria del producto (Comida, bebida, etc...)
+                status:
+                    type: string
+                    description: 'Estado actual del producto: disponible o no disponible'
+                owner:
+                    type: string
+                    description: Email del usuario dueño del producto
+            example:
+                title: Heineken
+                description: Heineken de 1l
+                price: 1600
+                code: HB1l
+                stock: 995
+                category: Bebida
+                status: Disponible
+                owner: admin
+
+    errors:
+        notFound:
+            type: string
+            example: Cast to ObjectId failed for value "pid" (type string) at path "_id" for model "products"
+        keyError:
+            type: string
+            example: 'Key error: missing values'
+        productAuthError:
+            type: string
+            example: 'Premium users can only delete their products'
+
+    responses:
+        Paginate:
+            type: object
+            properties:
+                payload:
+                    type: array
+                    description: Arreglo con todos los productos que satisfacen la busqueda y el filtrado
+                totalPages:
+                    type: number
+                    description: Cantidad de páginas con contenido
+                prevPage:
+                    type:
+                        - number
+                        - null
+                    description: Número de la página anterior. En caso de que el numero fuera a ser negativo devuelve null
+                nextPage:
+                    type: number
+                    description: Número de la página siguiente
+                page:
+                    type: number
+                    description: Número de la página actual
+                hasPrevPage:
+                    type: bolean
+                    description: Boleano que indica si la página anterior tiene contenido (payload no vacio)
+                hasNextPage:
+                    type: bolean
+                    description: Boleano que indica si la página siguiente tiene contenido (payload no vacio)
+                prevLink:
+                    type:
+                        - string
+                        - null
+                    description: Enlace al endpoint con la página anterior
+                nextLink:
+                    type:
+                        - string
+                        - null
+                    description: Enlace al endpoint con la página siguiente
+            example:
+                payload:
+                    [
+                        {
+                            'owner': 'Admin',
+                            '_id': '654a79ec61487a31f0a2f5bf',
+                            'title': 'Coca Cola',
+                            'description': 'Coca cola de 1l',
+                            'price': 1000,
+                            'code': 'CC1l',
+                            'stock': 17,
+                            '__v': 0,
+                            'category': 'Bebida',
+                            'status': 'Disponible',
+                            'thumbnail': '',
+                        },
+                        {
+                            '_id': '654a7a1a61487a31f0a2f5c2',
+                            'title': 'Quilmes',
+                            'description': 'Quilmes de 1l',
+                            'price': 1300,
+                            'code': 'QB1l',
+                            'stock': 995,
+                            '__v': 0,
+                            'category': 'Bebida',
+                            'status': 'Disponible',
+                            'thumbnail': '',
+                            'owner': 'gago@gmail.com',
+                        },
+                        {
+                            'owner': 'Admin',
+                            '_id': '654a7a3b61487a31f0a2f5c4',
+                            'title': 'Heineken',
+                            'description': 'Heineken de 1l',
+                            'price': 1600,
+                            'code': 'HB1l',
+                            'stock': 1000,
+                            '__v': 0,
+                            'category': 'Bebida',
+                            'status': 'Disponible',
+                        },
+                    ]
+                totalPages: 5
+                prevPage: null
+                nextPage: 2
+                page: 1
+                hasPrevPage: false
+                hasNextPage: true
+                prevLink: null
+                nextLink: http://localhost:8080/api/products?limit=3&page=2&sort=&status=&category=

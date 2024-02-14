@@ -9,13 +9,13 @@ class cartController {
     async createCart(req, res) {
         try {
             const response = await cartsRepository.create()
-            res.status(201).json({
+            res.status(200).json({
                 cart: response,
                 status: 'Success',
             })
         } catch (error) {
             req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
+            res.status(500).json({
                 error: error.message,
                 status: 'Fail',
             })
@@ -26,16 +26,73 @@ class cartController {
         try {
             let cId = req.params.cid
             let response = await cartsRepository.populate(cId)
-            res.status(201).json({
-                cart: response,
+            res.status(200).json({
                 status: 'Success',
+                cart: response,
             })
         } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                res.status(500).json({
+                    status: 'Fail',
+                    error: error.message,
+                })
+            }
+        }
+    }
+
+    async paginateCart(req, res) {
+        try {
+            let cId = req.params.cid
+            let products = req.body.payload
+            let response = await cartsRepository.update(cId, products)
+
+            res.status(200).json({
+                status: 'Success',
+                cart: response,
             })
+        } catch (error) {
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                res.status(500).json({
+                    status: 'Fail',
+                    error: error.message,
+                })
+            }
+        }
+    }
+
+    async emptyCart(req, res) {
+        try {
+            let cId = req.params.cid
+            let response = await cartsRepository.update(cId, { products: [] })
+            res.status(200).json({
+                status: 'Success',
+                cart: response,
+            })
+        } catch (error) {
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                res.status(500).json({
+                    status: 'Fail',
+                    error: error.message,
+                })
+            }
         }
     }
 
@@ -61,33 +118,77 @@ class cartController {
                 cart.products[cartIndex].quantity++
                 response = await cartsRepository.update(cId, cart)
             }
-            res.status(201).json({
+            res.status(200).json({
                 cart: response,
                 status: 'Success',
             })
         } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
-            })
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                if (error.message.includes('Premium users can only delete their products')) {
+                    res.status(401).json({
+                        status: 'Not authorized',
+                        error: error.message,
+                    })
+                } else {
+                    req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                    res.status(500).json({
+                        status: 'Fail',
+                        error: error.message,
+                    })
+                }
+            }
         }
     }
 
-    async emptyCart(req, res) {
+    async updateProduct(req, res) {
         try {
             let cId = req.params.cid
-            let response = await cartsRepository.update(cId, { products: [] })
-            res.status(201).json({
+            let pId = req.params.pid
+            let updatedQuantity = req.body
+            let product = await productsRepository.getById(pId)
+            let cart = await cartsRepository.getById(cId)
+            let user = (await usersRepository.getByCart(cId)) || {}
+
+            if (user.role === 'premium' && user.email === product.owner) {
+                throw new Error('Premium users cant add products that they own to their cart')
+            }
+            const cartIndex = cart.products.findIndex(el => el.product == pId)
+            let response = cart
+            if (cartIndex === -1) {
+                throw new Error('Cast to ObjectId failed: product not found in cart')
+            } else {
+                cart.products[cartIndex].quantity = updatedQuantity.quantity
+                response = await cartsRepository.update(cId, cart)
+            }
+            res.status(200).json({
                 user: response,
                 status: 'Success',
             })
         } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
-            })
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                if (error.message.includes('Premium users cant add products that they own to their cart')) {
+                    res.status(401).json({
+                        status: 'Not authorized',
+                        error: error.message,
+                    })
+                } else {
+                    req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                    res.status(500).json({
+                        status: 'Fail',
+                        error: error.message,
+                    })
+                }
+            }
         }
     }
 
@@ -97,72 +198,30 @@ class cartController {
             let pId = req.params.pid
             let cart = await cartsRepository.getById(cId)
             const cartIndex = cart.products.findIndex(el => el.product == pId)
-            let match = true
             let response = cart
             if (cartIndex === -1) {
-                match = false
+                throw new Error('Cast to ObjectId failed: product not found in cart')
             } else {
                 cart.products.splice(cartIndex, 1)
                 response = await cartsRepository.update(cId, cart)
             }
-            res.status(match ? 200 : 204).json({
-                cart: response,
-                status: 'Success',
-            })
-        } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
-            })
-        }
-    }
-
-    async updateProduct(req, res) {
-        try {
-            let cId = req.params.cid
-            let pId = req.params.pid
-            let updatedQuantity = req.body
-            let cart = await cartsRepository.getById(cId)
-            //const cartIndex = cart.products.findIndex(el => el.product == product.id)
-            const cartIndex = cart.products.findIndex(el => el.product == pId)
-            let match = true
-            let response = cart
-            if (cartIndex === -1) {
-                match = false
-            } else {
-                cart.products[cartIndex].quantity = updatedQuantity.quantity
-                response = await cartsRepository.update(cId, cart)
-            }
-            res.status(match ? 200 : 204).json({
-                user: response,
-                status: 'Success',
-            })
-        } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
-            })
-        }
-    }
-
-    async paginateCart(req, res) {
-        try {
-            let cId = req.params.cid
-            let products = req.body.payload
-            let response = await cartsRepository.update(cId, products)
-
             res.status(200).json({
                 cart: response,
                 status: 'Success',
             })
         } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
-            })
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                res.status(500).json({
+                    status: 'Fail',
+                    error: error.message,
+                })
+            }
         }
     }
 
@@ -209,6 +268,10 @@ class cartController {
                 amount: amount,
             }
 
+            if (amount === 0) {
+                throw new Error('Purchase error: can not purchase zero products')
+            }
+
             let ticket = await ticketsRepository.create(ticketData)
 
             res.status(200).json({
@@ -219,11 +282,25 @@ class cartController {
                 },
             })
         } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
-            })
+            if (error.message.includes('Purchase error:')) {
+                res.status(400).json({
+                    status: 'Error',
+                    error: error.message,
+                })
+            } else {
+                if (error.message.includes('Cast to ObjectId failed')) {
+                    res.status(404).json({
+                        status: 'Not found',
+                        error: error.message,
+                    })
+                } else {
+                    req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                    res.status(500).json({
+                        status: 'Fail',
+                        error: error.message,
+                    })
+                }
+            }
         }
     }
 }

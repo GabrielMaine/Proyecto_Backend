@@ -8,15 +8,15 @@ router.post('/', cartController.createCart)
 
 router.get('/:cid', cartController.getCart)
 
-router.post('/:cid/product/:pid', cartController.addProduct)
+router.put('/:cid', cartController.paginateCart)
 
 router.delete('/:cid', cartController.emptyCart)
 
-router.delete('/:cid/product/:pid', cartController.deleteProduct)
+router.post('/:cid/product/:pid', cartController.addProduct)
 
 router.put('/:cid/product/:pid', cartController.updateProduct)
 
-router.put('/:cid', cartController.paginateCart)
+router.delete('/:cid/product/:pid', cartController.deleteProduct)
 
 router.get('/:cid/purchase', cartController.buyCart)
 

@@ -18,12 +18,28 @@ import passport from 'passport'
 import initializedPassport from './config/passport.config.js'
 import errorHandler from './services/errors/index.js'
 import { generateLogger } from './helpers/logger/logger.js'
+import swaggerJSDoc from 'swagger-jsdoc'
+import swaggerUiExpress from 'swagger-ui-express'
+import { __dirname } from './helpers/utils.js'
 
 //Configuramos los servidores
 const app = express()
 const port = 8080
 const httpServer = app.listen(port, () => console.log(`Servidor en el puerto ${port}`))
 const socketServer = new Server(httpServer)
+
+const swaggerOptions = {
+    definition: {
+        openapi: '3.1.0',
+        info: {
+            title: 'Minimarket 24',
+            description: 'Tienda online 24hs',
+        },
+    },
+    apis: ['./src/docs/**/*.yaml'],
+}
+const specs = swaggerJSDoc(swaggerOptions)
+app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
 
 //Inicializamos el motor
 app.engine('handlebars', handlebars.engine())
