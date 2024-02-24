@@ -9,8 +9,8 @@ class cartController {
     async createCart(req, res) {
         try {
             const response = await cartsRepository.create()
-            res.status(200).json({
-                cart: response,
+            res.status(201).json({
+                payload: response,
                 status: 'Success',
             })
         } catch (error) {
@@ -26,9 +26,11 @@ class cartController {
         try {
             let cId = req.params.cid
             let response = await cartsRepository.populate(cId)
+            if (!response)
+                throw new Error(`Cast to ObjectId failed for value ${cId} (type string) at path _id for model carts`)
             res.status(200).json({
                 status: 'Success',
-                cart: response,
+                payload: response,
             })
         } catch (error) {
             if (error.message.includes('Cast to ObjectId failed')) {
@@ -54,7 +56,7 @@ class cartController {
 
             res.status(200).json({
                 status: 'Success',
-                cart: response,
+                payload: response,
             })
         } catch (error) {
             if (error.message.includes('Cast to ObjectId failed')) {
@@ -78,7 +80,7 @@ class cartController {
             let response = await cartsRepository.update(cId, { products: [] })
             res.status(200).json({
                 status: 'Success',
-                cart: response,
+                payload: response,
             })
         } catch (error) {
             if (error.message.includes('Cast to ObjectId failed')) {
@@ -119,7 +121,7 @@ class cartController {
                 response = await cartsRepository.update(cId, cart)
             }
             res.status(200).json({
-                cart: response,
+                payload: response,
                 status: 'Success',
             })
         } catch (error) {
@@ -166,7 +168,7 @@ class cartController {
                 response = await cartsRepository.update(cId, cart)
             }
             res.status(200).json({
-                user: response,
+                payload: response,
                 status: 'Success',
             })
         } catch (error) {
@@ -206,7 +208,7 @@ class cartController {
                 response = await cartsRepository.update(cId, cart)
             }
             res.status(200).json({
-                cart: response,
+                payload: response,
                 status: 'Success',
             })
         } catch (error) {
@@ -229,7 +231,7 @@ class cartController {
         try {
             let cId = req.params.cid
             let cart = await cartsRepository.getById(cId)
-            let user = await usersRepository.getByCart(cId)
+            let user = (await usersRepository.getByCart(cId)) || { email: 'admin@admin.com' }
             let products = await productsRepository.getAll()
 
             //Verificar items a comprar y actualizamos stock
@@ -254,6 +256,10 @@ class cartController {
             //Vaciar el carrito y calcular el total de compra
             const amount = boughtItems.reduce((total, product) => total + product.quantity * product.price, 0)
 
+            if (amount === 0) {
+                throw new Error('Purchase error: can not purchase zero products')
+            }
+
             cart.products = cart.products.filter(
                 item => !boughtItems.some(boughtItem => boughtItem._id.equals(item.product))
             )
@@ -266,10 +272,6 @@ class cartController {
                 purchaser: user.email,
                 code: uuidv4(),
                 amount: amount,
-            }
-
-            if (amount === 0) {
-                throw new Error('Purchase error: can not purchase zero products')
             }
 
             let ticket = await ticketsRepository.create(ticketData)
@@ -301,6 +303,32 @@ class cartController {
                     })
                 }
             }
+        }
+    }
+
+    async deleteUnusedCarts(req, res) {
+        try {
+            let carts = await cartsRepository.getAll()
+            let unusedCarts = []
+
+            for (const cart of carts) {
+                const user = await usersRepository.getByCart(cart._id)
+                // Lógica para determinar si el carrito está en uso o no
+                if (!user) {
+                    unusedCarts.push(cart._id)
+                    await cartsRepository.delete(cart._id)
+                }
+            }
+            res.status(200).json({
+                status: 'success',
+                payload: unusedCarts,
+            })
+        } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+            res.status(500).json({
+                status: 'Fail',
+                error: error.message,
+            })
         }
     }
 }

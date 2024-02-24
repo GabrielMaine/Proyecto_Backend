@@ -21,6 +21,7 @@ import { generateLogger } from './helpers/logger/logger.js'
 import swaggerJSDoc from 'swagger-jsdoc'
 import swaggerUiExpress from 'swagger-ui-express'
 import { __dirname } from './helpers/utils.js'
+import cookieParser from 'cookie-parser'
 
 //Configuramos los servidores
 const app = express()
@@ -58,6 +59,7 @@ app.use(
 )
 app.use(errorHandler)
 app.use(generateLogger)
+app.use(cookieParser())
 app.use(
     session({
         store: new MongoStore({
@@ -68,7 +70,10 @@ app.use(
         secret: 'CoderSecret',
         resave: false,
         saveUninitialized: false,
-        cookie: { maxAge: 1000 * 60 * 60 * 24 },
+        name: 'coderCookie',
+        cookie: {
+            maxAge: 1000 * 60 * 60 * 24,
+        },
     })
 )
 initializedPassport()

@@ -1,7 +1,7 @@
 import passport from 'passport'
 import local from 'passport-local'
 import { isValidPassword } from '../helpers/utils.js'
-import userService from '../services/User.service.js'
+import usersRepository from '../repositories/users.repository.js'
 import GithubStrategy from 'passport-github2'
 
 const LocalStrategy = local.Strategy
@@ -17,7 +17,7 @@ const initializedPassport = () => {
             },
             async (accessToken, refreshToken, profile, done) => {
                 try {
-                    let user = await userService.getUser(profile._json.email)
+                    let user = await usersRepository.getByEmail(profile._json.email)
                     let result = user
                     if (!user) {
                         let newUser = {
@@ -27,7 +27,7 @@ const initializedPassport = () => {
                             age: '',
                             password: '',
                         }
-                        result = await userService.createUser(newUser)
+                        result = await usersRepository.create(newUser)
                     }
                     return done(null, result)
                 } catch (error) {
@@ -42,11 +42,10 @@ const initializedPassport = () => {
         new LocalStrategy(
             { passReqToCallback: true, usernameField: 'email' },
             async (req, username, password, done) => {
-                const { first_name, last_name, email, age } = req.body
                 try {
-                    const user = await userService.getUser(email)
+                    const { first_name, last_name, email, age } = req.body
+                    const user = await usersRepository.getByEmail(email)
                     if (user) {
-                        console.log(user)
                         return done(null, false)
                     }
                     const newUser = {
@@ -56,7 +55,7 @@ const initializedPassport = () => {
                         age,
                         password,
                     }
-                    let result = await userService.createUser(newUser)
+                    let result = await usersRepository.create(newUser)
                     return done(null, result)
                 } catch (error) {
                     return done('User Not fount' + error)
@@ -69,18 +68,13 @@ const initializedPassport = () => {
         'login',
         new LocalStrategy({ passReqToCallback: true, usernameField: 'email' }, async (req, email, password, done) => {
             try {
-                const user = await userService.getUser(email)
-
+                const user = await usersRepository.getByEmail(email)
                 if (!user) {
-                    console.log('No user')
                     return done(null, false)
                 }
-
                 if (!isValidPassword(user, password)) {
-                    console.log('invalid password')
                     return done(null, false)
                 }
-
                 return done(null, user)
             } catch (error) {
                 return done(null, false)
@@ -93,7 +87,7 @@ const initializedPassport = () => {
     })
 
     passport.deserializeUser(async (id, done) => {
-        let user = await userService.getUserbyId(id)
+        let user = await usersRepository.getById(id)
         done(null, user)
     })
 }

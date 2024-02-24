@@ -9,7 +9,10 @@
         "dev": "nodemon --config nodemon.json",
         "format": "prettier --write .",
         "lint": "eslint --fix . --ext .js",
-        "start": "node src/index.js"
+        "start": "node src/index.js",
+        "sessionTest": "mocha test/routes/sessions.router.test.js",
+        "productTest": "mocha test/routes/products.router.test.js",
+        "cartTest": "mocha test/routes/carts.router.test.js"
     },
     "keywords": [],
     "author": "Gabriel Maine <gabrielmaine14@gmail.com> (https://github.com/GabrielMaine)",
@@ -24,11 +27,14 @@
     "devDependencies": {
         "@commitlint/cli": "17.7.1",
         "@commitlint/config-conventional": "17.7.0",
+        "chai": "5.1.0",
         "eslint": "8.50.0",
         "husky": "8.0.3",
         "lint-staged": "14.0.1",
+        "mocha": "10.3.0",
         "nodemon": "3.0.1",
-        "prettier": "3.0.3"
+        "prettier": "3.0.3",
+        "supertest": "6.3.4"
     },
     "engines": {
         "node": ">=18",

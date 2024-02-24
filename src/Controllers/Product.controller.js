@@ -26,7 +26,7 @@ class productController {
             data.owner = user.role === 'premium' ? user.email : 'admin'
             const response = await productsRepository.create(data)
             res.status(201).json({
-                product: response,
+                payload: response,
                 status: 'Success',
             })
         } catch (error) {
@@ -50,8 +50,10 @@ class productController {
         try {
             let pId = req.params.pid
             const response = await productsRepository.getById(pId)
+            if (!response)
+                throw new Error(`Cast to ObjectId failed for value ${pId} (type string) at path _id for model products`)
             res.status(200).json({
-                product: response,
+                payload: response,
                 status: 'Success',
             })
         } catch (error) {
@@ -140,7 +142,7 @@ class productController {
             const response = await productsRepository.update(pId, data)
             res.status(200).json({
                 status: 'Success',
-                product: response,
+                payload: response,
             })
         } catch (error) {
             if (error.message.includes('Cast to ObjectId failed')) {
@@ -176,7 +178,7 @@ class productController {
             const response = await productsRepository.delete(pId)
             res.status(200).json({
                 status: 'Success',
-                product: response,
+                payload: response,
             })
         } catch (error) {
             if (error.message.includes('Cast to ObjectId failed')) {

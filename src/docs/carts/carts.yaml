@@ -5,7 +5,7 @@ paths:
             tags:
                 - Carts
             responses:
-                '200':
+                '201':
                     description: Se creo un nuevo carrito exitosamente
                     content:
                         application/json:

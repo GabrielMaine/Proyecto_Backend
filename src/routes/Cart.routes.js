@@ -20,4 +20,6 @@ router.delete('/:cid/product/:pid', cartController.deleteProduct)
 
 router.get('/:cid/purchase', cartController.buyCart)
 
+router.delete('/delete/unused', cartController.deleteUnusedCarts)
+
 export { router }
