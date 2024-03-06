@@ -80,6 +80,15 @@ class userController {
             const user = await UserRepository.getById(userId)
             switch (user.role) {
                 case 'user': {
+                    const documents = user.documents || []
+                    let uploadedDocuments = documents.map(doc => doc.name.substring(userId.length + 1))
+                    uploadedDocuments = uploadedDocuments.map(e => e.toUpperCase())
+                    const requiredDocuments = ['identification.pdf', 'address.pdf', 'account.pdf']
+                    for (const value of requiredDocuments) {
+                        if (!uploadedDocuments.includes(value.toUpperCase())) {
+                            throw new Error(`Documentation error: Missing ${value} document`)
+                        }
+                    }
                     user.role = 'premium'
                     break
                 }
@@ -88,10 +97,10 @@ class userController {
                     break
                 }
                 case 'admin': {
-                    throw new Error('Can not change admin role to premium')
+                    throw new Error('Role error: Can not change admin role to premium')
                 }
                 default: {
-                    throw new Error('Invalid role detected')
+                    throw new Error('Role error: Invalid role detected')
                 }
             }
             const response = await UserRepository.update(userId, user)
@@ -100,11 +109,25 @@ class userController {
                 status: 'Success',
             })
         } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
-            })
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                if (error.message.includes('Documentation error') || error.message.includes('Role error')) {
+                    res.status(401).json({
+                        status: 'Not authorized',
+                        error: error.message,
+                    })
+                } else {
+                    req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                    res.status(500).json({
+                        status: 'Error',
+                        error: error.message,
+                    })
+                }
+            }
         }
     }
 
@@ -167,6 +190,33 @@ class userController {
         } catch (error) {
             req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(400).json({
+                error: error.message,
+                status: 'Fail',
+            })
+        }
+    }
+
+    async uploadDocument(req, res) {
+        try {
+            const userId = req.params.id
+            const user = await UserRepository.getById(userId)
+            const documents = user.documents || []
+            req.files.forEach(e => {
+                const newDocument = {
+                    name: e.filename,
+                    reference: e.path,
+                }
+                const existingDocument = documents.find(doc => doc.reference === newDocument.reference)
+                if (!existingDocument) {
+                    documents.push(newDocument)
+                }
+            })
+            user.documents = documents
+            const updatedUser = await usersRepository.update(userId, user)
+            res.status(200).json({ status: 'success', payload: updatedUser })
+        } catch (error) {
+            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+            res.status(500).json({
                 error: error.message,
                 status: 'Fail',
             })

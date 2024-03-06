@@ -1,4 +1,5 @@
 import UserSensibleDTO from '../dao/dtos/users.sensible.dto.js'
+import usersRepository from '../repositories/users.repository.js'
 
 class sessionController {
     async register(req, res) {
@@ -13,6 +14,9 @@ class sessionController {
         const { email, password } = req.body
         if (!req.user || !email || !password)
             return res.status(400).send({ status: 'error', error: 'Incomplete Values' })
+        let user = await usersRepository.getByEmail(email)
+        user.last_connection = new Date()
+        await usersRepository.update(user._id, user)
         let isAdmin = req.user.role === 'admin' ? true : false
         req.session.user = {
             name: req.user.first_name + ' ' + req.user.last_name,
@@ -29,13 +33,22 @@ class sessionController {
     }
 
     async logout(req, res) {
-        req.session.destroy(err => {
-            if (!err) {
-                res.redirect('/login')
-            } else {
-                res.status(400).send({ status: 'Logout error', message: err })
+        try {
+            let user = await usersRepository.getByEmail(req.session.user.email)
+            if (user) {
+                user.last_connection = new Date()
+                await usersRepository.update(user._id, user)
             }
-        })
+            req.session.destroy(err => {
+                if (!err) {
+                    res.redirect('/login')
+                } else {
+                    res.status(400).send({ status: 'Logout error', message: err })
+                }
+            })
+        } catch (error) {
+            res.status(500).send({ status: 'error', message: error.message })
+        }
     }
 
     async github(req, res) {}

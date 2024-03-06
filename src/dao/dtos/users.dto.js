@@ -9,6 +9,8 @@ export default class UserDTO {
             (this.cart = payload.cart),
             (this.role = payload.role),
             (this.token = payload.token),
-            (this.expiration = payload.expiration)
+            (this.expiration = payload.expiration),
+            (this.documents = payload.documents),
+            (this.last_connection = payload.last_connection)
     }
 }

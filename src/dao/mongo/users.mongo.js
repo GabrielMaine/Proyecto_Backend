@@ -34,7 +34,7 @@ export default class Users {
     }
 
     update = async (id, data) => {
-        let user = await userModel.updateOne({ _id: id }, data)
+        let user = await userModel.updateOne({ _id: id }, data, { new: true })
         return user
     }
 

@@ -21,12 +21,15 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin', 'premium'],
         default: 'user',
     },
-    token: {
-        type: String,
-    },
-    expiration: {
-        type: Date,
-    },
+    token: String,
+    expiration: Date,
+    documents: [
+        {
+            name: String,
+            reference: String,
+        },
+    ],
+    last_connection: Date,
 })
 
 export const userModel = mongoose.model(usersCollection, userSchema)

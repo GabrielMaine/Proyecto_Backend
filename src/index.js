@@ -65,7 +65,7 @@ app.use(
         store: new MongoStore({
             mongoUrl:
                 'mongodb+srv://gabrielmaine14:M63691g@clustermaine.wojwmq5.mongodb.net/ecommerce?retryWrites=true&w=majority',
-            mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
+            // mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
         }),
         secret: 'CoderSecret',
         resave: false,
