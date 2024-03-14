@@ -1,5 +1,3 @@
-import productService from '../services/Products.service.js'
-import cartService from '../services/Carts.service.js'
 import productsRepository from '../repositories/products.repository.js'
 import cartsRepository from '../repositories/carts.repository.js'
 import { generateProduct } from '../helpers/generateProduct.js'
@@ -35,8 +33,12 @@ class viewsController {
     async idCarts(req, res) {
         try {
             let cId = req.params.cid
-            let cart = await cartService.populateCart(cId)
-            res.render('cartById', { cart: cart, style: 'cart.css' })
+            let cart = await cartsRepository.populate(cId)
+            cart.products.forEach(e => {
+                e.cart = cart._id
+            })
+            let cartStatus = cart.products.length > 0 ? false : true
+            res.render('cartById', { cart: cart, cartStatus: cartStatus, style: 'cart.css' })
         } catch (error) {
             res.render('404', { error: error, style: '404.css' })
         }
@@ -48,7 +50,7 @@ class viewsController {
 
     async realTimeProducts(req, res) {
         try {
-            let products = await productService.getAllProducts()
+            let products = await productsRepository.getAll()
             res.render('realTimeProducts', { products })
         } catch (error) {
             res.render('404', { error })
@@ -57,7 +59,12 @@ class viewsController {
 
     async products(req, res) {
         try {
-            let products = await productService.paginateProducts({}, { limit: 5, page: 1, lean: true })
+            let options = {
+                limit: req.query.limit || 5,
+                page: req.query.page || 1,
+                lean: true,
+            }
+            let products = await productsRepository.paginate({}, options)
             const results = {
                 status: products.docs.length > 0 ? 'success' : 'error',
                 payload: products.docs,
@@ -68,13 +75,16 @@ class viewsController {
                 hasPrevPage: products.hasPrevPage,
                 hasNextPage: products.hasNextPage,
                 prevLink: products.hasPrevPage
-                    ? `http://localhost:8080/api/products?limit=${products.limit}&page=${products.prevPage}`
+                    ? `http://localhost:8080/products?limit=${products.limit}&page=${products.prevPage}`
                     : null,
                 nextLink: products.hasNextPage
-                    ? `http://localhost:8080/api/products?limit=${products.limit}&page=${products.nextPage}`
+                    ? `http://localhost:8080/products?limit=${products.limit}&page=${products.nextPage}`
                     : null,
             }
             let user = req.session.user
+            results.payload.forEach(product => {
+                product.cart = user.cart
+            })
             res.render('home', { results, user })
         } catch (error) {
             res.render('404', { error })
@@ -133,6 +143,19 @@ class viewsController {
             res.render('resetPassword', { user: user, isExpired: isExpired, isntExpired: isntExpired })
         } catch (error) {
             res.render('404', { error })
+        }
+    }
+
+    async purchase(req, res) {
+        try {
+            let cId = req.params.cid
+            let user = req.session.user
+            let cart = await cartsRepository.populate(cId)
+            let cartStatus = cart.products.length > 0 ? false : true
+
+            res.render('purchase', { user: user, cart: cart, cartStatus: cartStatus, style: 'purchase.css' })
+        } catch (error) {
+            res.render('404', { error: error, style: '404.css' })
         }
     }
 }

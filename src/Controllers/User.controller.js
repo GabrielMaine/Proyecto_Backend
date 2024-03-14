@@ -4,6 +4,7 @@ import { v4 as uuid } from 'uuid'
 import MailingService from '../services/mailing/mailing.js'
 import { isValidPassword } from '../helpers/utils.js'
 import bcrypt from 'bcrypt'
+import UserSensibleDTO from '../dao/dtos/users.sensible.dto.js'
 
 class userController {
     async createUser(req, res) {
@@ -11,12 +12,12 @@ class userController {
             const data = req.body
             const response = await UserRepository.create(data)
             res.status(201).json({
-                user: response,
                 status: 'Success',
+                payload: response,
             })
         } catch (error) {
             req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
+            res.status(500).json({
                 error: error.message,
                 status: 'Fail',
             })
@@ -28,28 +29,40 @@ class userController {
             const { email } = req.body
             const response = await UserRepository.getByEmail(email)
             res.status(200).json({
-                user: response,
                 status: 'Success',
+                payload: response,
             })
         } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
-            })
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                res.status(500).json({
+                    status: 'Fail',
+                    error: error.message,
+                })
+            }
         }
     }
 
     async getAllUsers(req, res) {
         try {
-            const response = await UserRepository.getAll()
+            const users = await UserRepository.getAll()
+            let response = []
+            users.map(u => {
+                const user = new UserSensibleDTO(u)
+                response.push(user)
+            })
             res.status(200).json({
-                user: response,
                 status: 'Success',
+                payload: response,
             })
         } catch (error) {
             req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
+            res.status(500).json({
                 error: error.message,
                 status: 'Fail',
             })
@@ -62,15 +75,48 @@ class userController {
             const data = req.body
             const response = await UserRepository.update(userId, data)
             res.status(200).json({
-                user: response,
                 status: 'Success',
+                payload: response,
             })
         } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                res.status(500).json({
+                    status: 'Fail',
+                    error: error.message,
+                })
+            }
+        }
+    }
+
+    async deleteUser(req, res) {
+        try {
+            const user = req.session.user
+            console.log(user)
+            const userId = req.params.id
+            const response = await UserRepository.delete(userId)
+            res.status(200).json({
+                status: 'Success',
+                payload: response,
             })
+        } catch (error) {
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                res.status(500).json({
+                    status: 'Fail',
+                    error: error.message,
+                })
+            }
         }
     }
 
@@ -105,8 +151,8 @@ class userController {
             }
             const response = await UserRepository.update(userId, user)
             res.status(200).json({
-                user: response,
                 status: 'Success',
+                payload: response,
             })
         } catch (error) {
             if (error.message.includes('Cast to ObjectId failed')) {
@@ -157,11 +203,18 @@ class userController {
             }
             res.status(200).json({ status: 'ok' })
         } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
-            })
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                res.status(500).json({
+                    status: 'Fail',
+                    error: error.message,
+                })
+            }
         }
     }
 
@@ -188,11 +241,18 @@ class userController {
                 res.status(200).json({ status: 'ok', payload: result })
             }
         } catch (error) {
-            req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
-            res.status(400).json({
-                error: error.message,
-                status: 'Fail',
-            })
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                res.status(500).json({
+                    status: 'Fail',
+                    error: error.message,
+                })
+            }
         }
     }
 
@@ -214,6 +274,58 @@ class userController {
             user.documents = documents
             const updatedUser = await usersRepository.update(userId, user)
             res.status(200).json({ status: 'success', payload: updatedUser })
+        } catch (error) {
+            if (error.message.includes('Cast to ObjectId failed')) {
+                res.status(404).json({
+                    status: 'Not found',
+                    error: error.message,
+                })
+            } else {
+                req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
+                res.status(500).json({
+                    status: 'Fail',
+                    error: error.message,
+                })
+            }
+        }
+    }
+
+    async deleteUnused(req, res) {
+        try {
+            const users = await UserRepository.getAll()
+            let response = []
+
+            for (const u of users) {
+                const today = new Date()
+                u.last_connection = u.last_connection || new Date('2024-01-01')
+                const msDifference = today - u.last_connection
+                const daysDifference = msDifference / (1000 * 60 * 60 * 24)
+
+                if (daysDifference >= 2 && u.role !== 'admin') {
+                    const user = new UserSensibleDTO(u)
+                    response.push(user)
+
+                    // Enviamos el mail
+                    const mailer = new MailingService()
+                    try {
+                        await mailer.sendMailUser({
+                            from: 'pruebaCurso@gmail.com',
+                            to: u.email,
+                            subject: 'Usuario eliminado',
+                            html: '<p>Su usuario ha sido eliminado por inactividad.</p>',
+                        })
+                        // Eliminamos el usuario
+                        const deletedUser = await usersRepository.delete(u._id)
+                    } catch (error) {
+                        console.error('Error enviando el correo:', error)
+                    }
+                }
+            }
+
+            res.status(200).json({
+                status: 'Success',
+                payload: response,
+            })
         } catch (error) {
             req.logger.error(`${error.message} at: ${req.url} - ${new Date().toLocaleString()}`)
             res.status(500).json({

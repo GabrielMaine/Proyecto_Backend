@@ -245,6 +245,7 @@ class cartController {
                         return {
                             _id: p.product,
                             quantity: p.quantity,
+                            title: existingProduct.title,
                             price: existingProduct.price,
                         }
                     }
@@ -264,6 +265,7 @@ class cartController {
                 item => !boughtItems.some(boughtItem => boughtItem._id.equals(item.product))
             )
             cart = await cartsRepository.update(cId, cart)
+            cart = await cartsRepository.populate(cId)
 
             //Crear el ticket
 
@@ -280,6 +282,7 @@ class cartController {
                 status: 'Success',
                 payload: {
                     ticket,
+                    boughtItems,
                     cart,
                 },
             })

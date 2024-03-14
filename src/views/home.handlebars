@@ -7,6 +7,7 @@
         <li>Rol: {{user.role}}</li>
         <a href='/api/sessions/logout'><button>Cerrar sesión</button></a>
         <a href='/'><button>Ver perfil</button></a>
+        <a href='/carts/{{user.cart}}'><button>Ver carrito</button></a>
     </div>
     <div id='pageRender'>
         <h2>Página <span id='currentPage'>{{results.page}}</span> de {{results.totalPages}}</h2>
@@ -15,17 +16,21 @@
                 <span>Producto:{{this.title}}</span><br />
                 <span>ID:{{this._id}}</span><br />
                 <span>Precio:{{this.price}}</span><br />
-                <span>Descripcion:{{this.description}}</span><br />
-                <button>Agregar al carrito</button><hr />
+                <span>Descripción:{{this.description}}</span><br />
+                <form id="addToCartForm_{{this._id}}" action="/api/carts/{{this.cart}}/product/{{this._id}}" method="POST">
+                    <button type="submit" onclick="addToCart(event, '{{this._id}}')">Agregar al carrito</button>
+                </form>
+                <span id="info_{{this._id}}"></span>
+                <hr />
             </div>
         {{/each}}
 
         {{#if results.hasPrevPage}}
-            <button onclick='return prevPage(this)'>Pagina anterior</button>
+            <a href={{results.prevLink}}><button>Pagina anterior</button></a>
         {{/if}}
 
         {{#if results.hasNextPage}}
-            <button onclick='return nextPage(this)'>Pagina siguiente</button>
+            <a href={{results.nextLink}}><button>Pagina siguiente</button></a>
         {{/if}}
 
     </div>

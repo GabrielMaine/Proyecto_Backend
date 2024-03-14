@@ -1,47 +1,30 @@
 /* global document, io */
 
-const socket = io()
-socket.emit('message', 'Comunicacion desde websocket')
+function addToCart(e, productId) {
+    e.preventDefault()
 
-const prevPage = () => {
-    let currentPage = parseInt(document.getElementById('currentPage').innerHTML)
-    console.log(currentPage)
-    let previousPage = currentPage - 1
-    console.log(previousPage)
-    socket.emit('change-page', previousPage)
-    return false
-}
+    // Obtener el formulario y la URL de la acción
+    let form = document.getElementById('addToCartForm_' + productId)
+    let action = form.getAttribute('action')
+    let formResult = document.getElementById('info_' + productId)
+    formResult.innerHTML = ''
 
-const nextPage = () => {
-    let currentPage = parseInt(document.getElementById('currentPage').innerHTML)
-    console.log(currentPage)
-    let nextPage = currentPage + 1
-    console.log(nextPage)
-    socket.emit('change-page', nextPage)
-    return false
-}
-
-//Funcion para volver a renderizar los productos cuando obtenemos respuesta del servidor
-socket.on('reRender-page', data => {
-    console.log('Re render')
-    let render = document.getElementById('pageRender')
-    let page = `<h2>Página <span id='currentPage'>${data.page}</span> de ${data.totalPages}</h2>`
-    data.payload.forEach(element => {
-        page =
-            page +
-            `<div>
-            <span>Producto:${element.title}</span><br>
-            <span>ID:${element._id}</span><br>
-            <span>Precio:${element.price}</span><br>
-            <span>Descripcion:${element.description}</span><br>
-            <button>Agregar al carrito</button><hr>
-            </div>`
+    // Enviar la solicitud utilizando fetch
+    fetch(action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
     })
-    if (data.hasPrevPage) {
-        page = page + '<button onclick=\'return prevPage(this)\'>Pagina anterior</button>'
-    }
-    if (data.hasNextPage) {
-        page = page + '<button onclick=\'return nextPage(this)\'>Pagina siguiente</button>'
-    }
-    render.innerHTML = page
-})
+        .then(response => {
+            if (response.ok) {
+                formResult.innerHTML = 'Se ha añadido una unidad con éxito a su carrito'
+            } else {
+                formResult.innerHTML = 'Ocurrio un error, por favor intentelo mas tarde'
+            }
+        })
+        .catch(error => {
+            formResult.innerHTML = 'Ocurrio un error, por favor intentelo mas tarde'
+        })
+}

@@ -47,4 +47,6 @@ router.get('/forgotPassword', viewsController.forgotPassword)
 
 router.get('/resetPassword', viewsController.resetPassword)
 
+router.get('/purchase/:cid', viewsController.purchase)
+
 export { router }

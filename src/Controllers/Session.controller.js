@@ -24,6 +24,7 @@ class sessionController {
             email: req.user.email,
             role: req.user.role,
             isAdmin: isAdmin,
+            cart: req.user.cart,
         }
         res.send({ status: 'success', payload: req.user })
     }

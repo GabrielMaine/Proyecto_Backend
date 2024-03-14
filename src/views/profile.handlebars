@@ -1,6 +1,6 @@
 <div>
     <h1>Perfil</h1>
-    <div id='userData'>
+    <div id='userInfo'>
         <li>Nombre: {{user.name}}</li>
         <li>Email: {{user.email}}</li>
         <li>Edad: {{user.age}}</li>
@@ -9,5 +9,56 @@
     <div id='redirect'>
         <a href='/api/sessions/logout'><button>Cerrar sesión</button></a>
         <a href='/products'><button>Ver catalogo</button></a>
+        <a href='/carts/{{user.cart}}'><button>Ver carrito</button></a>
     </div>
+    {{#if user.isAdmin}}
+        <div id="adminPanel">
+            <h2>Panel de control de admin</h2>
+            <button onclick='return loadUsers()'>Cargar datos de usuarios</button>
+            <div id="userData">
+            </div>
+            <button onclick='return deleteUnused()'>Borrar usuarios inactivos</button>
+            <div id="deletedData">
+            </div>
+            <div>
+                <form id='roleForm'>
+                    <h3 class='formLegend'>Ingrese ID de usuario para cambiar su rol</h3>
+                    <div class='inputGroup form-floating'>
+                        <input
+                            required
+                            class='form-control dataInput'
+                            type='text'
+                            name='id'
+                            placeholder='Id'
+                            id='id'
+                        />
+                        <label for='id'>ID</label>
+                    </div>
+                    <input class='submitInput' type='submit' value='Cambiar rol' />
+                </form>
+                <span id="roleInfo"></span>
+            </div>
+            <div>
+                <form id='deleteForm'>
+                    <h3 class='formLegend'>Ingrese ID de usuario para eliminar</h3>
+                    <div class='inputGroup form-floating'>
+                        <input
+                            required
+                            class='form-control dataInput'
+                            type='text'
+                            name='id'
+                            placeholder='Id'
+                            id='id'
+                        />
+                        <label for='id'>ID</label>
+                    </div>
+                    <input class='submitInput' type='submit' value='Eliminar usuario' />
+                </form>
+                <span id="deleteInfo"></span>
+            </div>
+        </div>
+
+    {{/if}}
 </div>
+
+<script src='/js/profile.js'></script>

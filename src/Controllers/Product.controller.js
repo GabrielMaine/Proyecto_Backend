@@ -1,22 +1,13 @@
 'use strict'
 import productsRepository from '../repositories/products.repository.js'
-import CustomError from '../services/errors/CustomError.js'
-import errorCodes from '../services/errors/enums.js'
-import { generateProductErrorInfo } from '../services/errors/info.js'
+import usersRepository from '../repositories/users.repository.js'
+import MailingService from '../services/mailing/mailing.js'
 
 class productController {
     async createProduct(req, res) {
         try {
             let data = req.body
             let user = req.session.user || {}
-            // if (!data.title || !data.description || !data.code || !data.stock || !data.price || !data.category) {
-            //     CustomError.createError({
-            //         name: 'Product creation error',
-            //         cause: generateProductErrorInfo(data),
-            //         message: 'Error trying to create a product',
-            //         code: errorCodes.INVALID_TYPES_ERROR,
-            //     })
-            // }
             if (!data.title || !data.description || !data.code || !data.stock || !data.price || !data.category) {
                 throw new Error('Key error: missing values')
             }
@@ -170,10 +161,21 @@ class productController {
     async deleteProduct(req, res) {
         try {
             let pId = req.params.pid
-            let user = req.session.user || {}
+            let user = req.session.user || {} //Usuario que quiere borrar el producto
             let product = await productsRepository.getById(pId)
-            if (user.role === 'premium' && user.email !== product.owner) {
-                throw new Error('Premium users can only delete their products')
+            if (user.role === 'premium') {
+                if (user.email !== product.owner) throw new Error('Premium users can only delete their products')
+            }
+            let owner = (await usersRepository.getByEmail(product.owner)) || {} //Dueño del producto
+            if (owner.role === 'premium') {
+                // Enviamos el mail
+                const mailer = new MailingService()
+                mailer.sendMailUser({
+                    from: 'pruebaCurso@gmail.com',
+                    to: owner.email,
+                    subject: 'Producto eliminado',
+                    html: `<p>Su producto ${product.title} ha sido eliminado.</p>`,
+                })
             }
             const response = await productsRepository.delete(pId)
             res.status(200).json({

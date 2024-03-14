@@ -1,14 +1,45 @@
 <div id='pageRender'>
-    <h1>Carrito</h1>
-    {{#each cart.products}}
-        <div>
-            <span>Producto:{{this.product.title}}</span><br />
-            <span>ID:{{this.product._id}}</span><br />
-            <span>Precio:{{this.product.price}}</span><br />
-            <span>Descripcion:{{this.product.description}}</span><br />
-            <span>Cantidad: {{this.quantity}}</span><hr />
-        </div>
-    {{/each}}
+    <div id="prePurchase">
+        <h1>Carrito</h1>
+        <hr>
+        {{#if cartStatus}}
+            <span>Su carrito esta vacio</span>
+            <a href='/products'><button>Ver catalogo</button></a>
+        {{/if}}
+        {{#unless cartStatus}}
+            {{#each cart.products}}
+                <form id="deleteFromCart_{{this.product._id}}" action="/api/carts/{{this.cart}}/product/{{this.product._id}}" method="DELETE">
+                    <div>
+                        <span>Producto:{{this.product.title}}</span><br />
+                        <span>ID:{{this.product._id}}</span><br />
+                        <span>Precio:{{this.product.price}}</span><br />
+                        <span>Descripcion:{{this.product.description}}</span><br />
+                        <span>Cantidad: {{this.quantity}}</span>
+                    </div>
+                    <button type="submit" onclick="deleteFromCart(event, '{{this.product._id}}')">Eliminar del carrito</button>
+                </form>
+                <form id="setQuantity_{{this.product._id}}" action="/api/carts/{{this.cart}}/product/{{this.product._id}}" method="PUT">
+                    <span>Establecer cantidad:</span><br>
+                    <label for="quantityInput_{{this.product._id}}">Cantidad:</label>
+                    <input type="number" id="quantityInput_{{this.product._id}}" name="quantity" min="1" value={{this.quantity}}>
+                    <button type="submit" onclick="setQuantity(event, '{{this.product._id}}')">Confirmar</button>
+                </form>
+                <div id="info_{{this.product._id}}">
 
+                </div>
+                <hr />
+            {{/each}}
+            <hr>
+            <a href='/products'><button>Ver catalogo</button></a>
+            {{!-- <a href='/purchase/{{cart._id}}'><button>Comprar</button></a> --}}
+            <form id="purchase_{{cart._id}}" action="/api/carts/{{cart._id}}/purchase" method="GET">
+                <button type="submit" onclick="purchase(event, '{{cart._id}}')">Comprar</button>
+            </form>
+        {{/unless}}
+    </div>
+    <div id="postPurchase">
+        
+    </div>
 </div>
-<script src='/socket.io/socket.io.js'></script>
+
+<script src='/js/cartById.js'></script>
