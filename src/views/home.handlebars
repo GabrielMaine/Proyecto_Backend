@@ -17,10 +17,14 @@
                 <span>ID:{{this._id}}</span><br />
                 <span>Precio:{{this.price}}</span><br />
                 <span>Descripción:{{this.description}}</span><br />
-                <form id="addToCartForm_{{this._id}}" action="/api/carts/{{this.cart}}/product/{{this._id}}" method="POST">
-                    <button type="submit" onclick="addToCart(event, '{{this._id}}')">Agregar al carrito</button>
+                <form
+                    id='addToCartForm_{{this._id}}'
+                    action='/api/carts/{{this.cart}}/product/{{this._id}}'
+                    method='POST'
+                >
+                    <button type='submit' onclick="addToCart(event, '{{this._id}}')">Agregar al carrito</button>
                 </form>
-                <span id="info_{{this._id}}"></span>
+                <span id='info_{{this._id}}'></span>
                 <hr />
             </div>
         {{/each}}
