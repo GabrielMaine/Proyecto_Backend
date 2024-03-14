@@ -25,7 +25,7 @@ import cookieParser from 'cookie-parser'
 
 //Configuramos los servidores
 const app = express()
-const port = 8080
+const port = process.env.PORT || 8080
 const httpServer = app.listen(port, () => console.log(`Servidor en el puerto ${port}`))
 const socketServer = new Server(httpServer)
 
