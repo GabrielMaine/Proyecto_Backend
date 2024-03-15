@@ -12,7 +12,8 @@
         "start": "node src/index.js",
         "sessionTest": "mocha test/routes/sessions.router.test.js",
         "productTest": "mocha test/routes/products.router.test.js",
-        "cartTest": "mocha test/routes/carts.router.test.js"
+        "cartTest": "mocha test/routes/carts.router.test.js",
+        "vercel-build": "echo hello"
     },
     "keywords": [],
     "author": "Gabriel Maine <gabrielmaine14@gmail.com> (https://github.com/GabrielMaine)",
