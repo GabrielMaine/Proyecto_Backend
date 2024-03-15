@@ -74,12 +74,8 @@ class viewsController {
                 page: products.page,
                 hasPrevPage: products.hasPrevPage,
                 hasNextPage: products.hasNextPage,
-                prevLink: products.hasPrevPage
-                    ? `http://localhost:8080/products?limit=${products.limit}&page=${products.prevPage}`
-                    : null,
-                nextLink: products.hasNextPage
-                    ? `http://localhost:8080/products?limit=${products.limit}&page=${products.nextPage}`
-                    : null,
+                prevLink: products.hasPrevPage ? `/products?limit=${products.limit}&page=${products.prevPage}` : null,
+                nextLink: products.hasNextPage ? `/products?limit=${products.limit}&page=${products.nextPage}` : null,
             }
             let user = req.session.user
             results.payload.forEach(product => {
